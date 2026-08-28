@@ -13,28 +13,37 @@ const links = [
 ];
 
 export function MobileMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-cream md:hidden">
-      <div className="wrap flex items-center justify-between border-b border-line py-6">
-        <span className="font-serif text-2xl font-semibold tracking-[0.14em]">KURI</span>
-        <button type="button" onClick={onClose} aria-label="Close menu">
-          <CloseIcon size={22} />
-        </button>
+    <>
+      {/* Backdrop */}
+      <div
+        className={`mobile-menu-backdrop ${isOpen ? "mobile-menu-backdrop--open" : ""}`}
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Panel */}
+      <div className={`mobile-menu-panel ${isOpen ? "mobile-menu-panel--open" : ""}`}>
+        <div className="flex items-center justify-between border-b border-line px-6 py-5">
+          <span className="font-serif text-xl font-semibold tracking-[0.14em]">KURI</span>
+          <button type="button" onClick={onClose} aria-label="Close menu" className="nav-icon-btn">
+            <CloseIcon size={20} />
+          </button>
+        </div>
+        <nav className="flex flex-1 flex-col px-6 py-6">
+          {links.map((link, i) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={onClose}
+              className="mobile-menu-link"
+              style={{ transitionDelay: isOpen ? `${80 + i * 50}ms` : "0ms" }}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
       </div>
-      <nav className="wrap flex flex-1 flex-col gap-1 py-8">
-        {links.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            onClick={onClose}
-            className="border-b border-line py-4 font-serif text-2xl"
-          >
-            {link.label}
-          </Link>
-        ))}
-      </nav>
-    </div>
+    </>
   );
 }

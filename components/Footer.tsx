@@ -38,16 +38,13 @@ export function Footer() {
           </div>
         </div>
       </div>
-      <div className="wrap flex flex-col gap-3 border-t border-line py-6 text-xs text-muted-2 md:flex-row md:items-center md:justify-between">
+      <div className="wrap flex flex-col items-center gap-3 border-t border-line py-6 text-center text-xs text-muted-2 sm:text-left md:flex-row md:items-center md:justify-between">
         <div>&copy; {new Date().getFullYear()} Kuri Valley Estate. Sreemangal, Bangladesh.</div>
         <div className="flex gap-4">
           <span>Instagram</span>
           <span>Facebook</span>
           <Link href="/photo-credits" className="underline">
             Photo Credits
-          </Link>
-          <Link href="/admin" className="text-[rgba(91,81,64,0.3)] hover:text-[rgba(91,81,64,0.6)] transition-colors">
-            Admin
           </Link>
         </div>
       </div>

@@ -9,10 +9,10 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="wrap py-20 md:py-24">
+    <div className="wrap py-16 sm:py-20 md:py-24">
       <div className="mb-16 max-w-[560px]">
         <div className="eyebrow mb-4">Contact</div>
-        <h1 className="font-serif text-4xl font-medium md:text-[42px]">Get in touch</h1>
+        <h1 className="font-serif text-[32px] font-medium sm:text-4xl md:text-[42px]">Get in touch</h1>
         <p className="mt-4 text-[15px] leading-relaxed text-charcoal-2">
           Questions about an order, wholesale, press, or anything else -- send us a note.
         </p>

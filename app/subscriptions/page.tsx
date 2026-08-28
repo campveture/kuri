@@ -46,10 +46,10 @@ const faqs = [
 export default function SubscriptionsPage() {
   return (
     <div>
-      <div className="wrap py-20 md:py-28">
+      <div className="wrap py-16 sm:py-20 md:py-28">
         <div className="max-w-[640px]">
           <div className="eyebrow mb-4">Subscriptions</div>
-          <h1 className="font-serif text-4xl font-medium md:text-[46px]">
+          <h1 className="font-serif text-[32px] font-medium sm:text-4xl md:text-[46px]">
             Never run out of tea.
           </h1>
           <p className="mt-6 text-base leading-relaxed text-charcoal-2">
@@ -62,13 +62,13 @@ export default function SubscriptionsPage() {
         </div>
       </div>
 
-      <div className="bg-cream-2 py-24 md:py-28">
+      <div className="bg-cream-2 py-16 sm:py-20 md:py-28">
         <div className="wrap">
           <div className="mb-16 text-center">
             <div className="eyebrow mb-4">How It Works</div>
-            <h2 className="font-serif text-3xl font-medium md:text-[34px]">Three steps</h2>
+            <h2 className="font-serif text-[26px] font-medium sm:text-3xl md:text-[34px]">Three steps</h2>
           </div>
-          <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-10 sm:gap-12 md:grid-cols-3">
             {steps.map((step, i) => (
               <div key={step.title}>
                 <div className="step-num">0{i + 1}</div>
@@ -80,10 +80,10 @@ export default function SubscriptionsPage() {
         </div>
       </div>
 
-      <div className="wrap py-24 md:py-28">
+      <div className="wrap py-16 sm:py-20 md:py-28">
         <div className="mb-14 text-center">
           <div className="eyebrow mb-4">Choose a Rhythm</div>
-          <h2 className="font-serif text-3xl font-medium md:text-[34px]">Pick a frequency</h2>
+          <h2 className="font-serif text-[26px] font-medium sm:text-3xl md:text-[34px]">Pick a frequency</h2>
         </div>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {frequencies.map((f) => (
@@ -98,10 +98,10 @@ export default function SubscriptionsPage() {
         </div>
       </div>
 
-      <div className="wrap pb-24 md:pb-32">
+      <div className="wrap pb-16 sm:pb-20 md:pb-32">
         <div className="mb-12">
           <div className="eyebrow mb-4">Questions</div>
-          <h2 className="font-serif text-3xl font-medium md:text-[34px]">FAQ</h2>
+          <h2 className="font-serif text-[26px] font-medium sm:text-3xl md:text-[34px]">FAQ</h2>
         </div>
         <FaqAccordion items={faqs} />
       </div>

@@ -43,14 +43,14 @@ export default function HomePage() {
           <HeroLine delay={150}>
             <span className="eyebrow mb-4 block text-gold">Sreemangal, Bangladesh</span>
           </HeroLine>
-          <h1 className="font-serif text-[34px] font-medium leading-tight text-cream md:text-[62px]">
+          <h1 className="font-serif text-[28px] font-medium leading-tight text-cream sm:text-[34px] md:text-[56px]">
             <HeroLine delay={350}>Tea from one valley</HeroLine>
             <HeroLine delay={500}>
               in <em className="gold-shimmer not-italic">Sreemangal.</em>
             </HeroLine>
           </h1>
           <HeroLine delay={700}>
-            <span className="mt-5 block max-w-[480px] text-[15px] leading-relaxed text-[rgba(247,242,230,0.9)] md:text-[17px]">
+            <span className="mt-5 block max-w-[480px] text-[14px] leading-relaxed text-[rgba(247,242,230,0.9)] sm:text-[15px] md:text-[17px]">
               Kuri Valley Estate sits in the hills of Sylhet&apos;s tea country. We pick,
               process, and pack from a single garden &mdash; no blending, no averaging, just
               the valley as it is.
@@ -102,12 +102,12 @@ export default function HomePage() {
         <div className="grain absolute inset-0" />
         <Parallax
           strength={55}
-          className="absolute inset-x-6 bottom-10 z-10 md:inset-x-auto md:bottom-16 md:left-16 md:w-[440px]"
+          className="absolute inset-x-4 bottom-6 z-10 sm:inset-x-6 sm:bottom-10 md:inset-x-auto md:bottom-16 md:left-16 md:w-[440px]"
         >
           <Reveal>
-            <div className="bg-[rgba(247,242,230,0.94)] p-8 shadow-[0_24px_60px_rgba(43,36,28,0.35)] backdrop-blur-sm md:p-10">
+            <div className="bg-[rgba(247,242,230,0.94)] p-6 shadow-[0_24px_60px_rgba(43,36,28,0.35)] backdrop-blur-sm sm:p-8 md:p-10">
               <div className="eyebrow mb-3.5">Our Origin</div>
-              <h2 className="font-serif text-3xl font-medium md:text-[36px]">Kuri Valley Estate</h2>
+              <h2 className="font-serif text-[26px] font-medium sm:text-3xl md:text-[36px]">Kuri Valley Estate</h2>
               <p className="mt-5 text-base leading-relaxed text-charcoal-2">
                 Sreemangal has grown tea since [YEAR]. Ours comes from one estate, one elevation
                 band, one team of pickers who know these rows by hand &mdash; season after
@@ -132,7 +132,7 @@ export default function HomePage() {
             <div className="mb-14 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
               <div>
                 <div className="eyebrow mb-4">The Collection</div>
-                <h2 className="font-serif text-3xl font-medium md:text-[34px]">
+                <h2 className="font-serif text-[26px] font-medium sm:text-3xl md:text-[34px]">
                   From this season&apos;s harvest
                 </h2>
               </div>
@@ -141,7 +141,7 @@ export default function HomePage() {
               </Link>
             </div>
           </Reveal>
-          <div className="grid grid-cols-2 gap-10 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-6 sm:gap-8 md:gap-10 md:grid-cols-4">
             {products.map((product, i) => (
               <Reveal key={product.handle} delay={i * 120}>
                 <ProductCard product={product} imageBg="bg-cream" />
@@ -165,7 +165,7 @@ export default function HomePage() {
           <Reveal>
             <div className="max-w-[520px] py-20">
               <div className="eyebrow mb-4 text-gold">Our Story</div>
-              <h2 className="font-serif text-3xl font-medium text-cream md:text-[40px]">
+              <h2 className="font-serif text-[26px] font-medium text-cream sm:text-3xl md:text-[40px]">
                 A century of growing, one valley at a time
               </h2>
               <p className="mt-5 text-[15px] leading-relaxed text-[rgba(247,242,230,0.85)]">
@@ -189,7 +189,7 @@ export default function HomePage() {
         <div className="wrap max-w-[820px] text-center">
           <Reveal>
             <LeafQuoteIcon className="float-slow mx-auto mb-7 block" />
-            <div className="font-serif text-2xl italic leading-relaxed md:text-[30px]">
+            <div className="font-serif text-xl italic leading-relaxed sm:text-2xl md:text-[30px]">
               &ldquo;We don&apos;t buy tea. We grow{" "}
               <span className="gold-shimmer">one hillside</span>, and drink what it gives
               us.&rdquo;
@@ -203,14 +203,14 @@ export default function HomePage() {
 
       {/* Newsletter */}
       <Reveal>
-        <div className="wrap flex flex-col items-start justify-between gap-8 border-b border-line py-20 md:flex-row md:items-center">
+        <div className="wrap flex flex-col items-start justify-between gap-8 border-b border-line py-16 sm:py-20 md:flex-row md:items-center">
           <div className="max-w-[420px]">
             <h3 className="font-serif text-2xl font-medium">Get first access to new harvests</h3>
             <p className="mt-2.5 text-sm text-muted">
               One email, a few times a season. No spam, just fresh tea when it lands.
             </p>
           </div>
-          <form className="flex w-full max-w-[420px] border border-charcoal md:min-w-[380px]">
+          <form className="flex w-full max-w-[420px] flex-col border border-charcoal sm:flex-row md:min-w-[380px]">
             <input
               type="email"
               placeholder="Your email address"

@@ -33,10 +33,10 @@ const milestones = [
 export default function OurStoryPage() {
   return (
     <div>
-      <div className="wrap py-20 md:py-28">
+      <div className="wrap py-16 sm:py-20 md:py-28">
         <div className="max-w-[640px]">
           <div className="eyebrow mb-4">Our Story</div>
-          <h1 className="font-serif text-4xl font-medium md:text-[46px]">
+          <h1 className="font-serif text-[32px] font-medium sm:text-4xl md:text-[46px]">
             Why Kuri exists
           </h1>
           <p className="mt-6 text-base leading-relaxed text-charcoal-2">
@@ -48,7 +48,7 @@ export default function OurStoryPage() {
         </div>
       </div>
 
-      <div className="bg-cream-2 py-24 md:py-28">
+      <div className="bg-cream-2 py-16 sm:py-20 md:py-28">
         <div className="wrap flex flex-col items-center gap-12 md:flex-row md:gap-24">
           <div className="aspect-[4/5] w-full max-w-[360px] overflow-hidden rounded-sm md:flex-1">
             <PortraitIllustration className="h-full w-full" />
@@ -68,12 +68,12 @@ export default function OurStoryPage() {
         </div>
       </div>
 
-      <div className="wrap py-24 md:py-32">
+      <div className="wrap py-16 sm:py-24 md:py-32">
         <div className="mb-16 text-center">
           <div className="eyebrow mb-4">How We Got Here</div>
-          <h2 className="font-serif text-3xl font-medium md:text-[34px]">A short timeline</h2>
+          <h2 className="font-serif text-[26px] font-medium sm:text-3xl md:text-[34px]">A short timeline</h2>
         </div>
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-8 sm:gap-10 md:grid-cols-4">
           {milestones.map((m) => (
             <div key={m.label} className="border-t-2 border-charcoal pt-5">
               <div className="font-serif text-lg text-gold-deep">{m.year}</div>
@@ -100,7 +100,7 @@ export default function OurStoryPage() {
             >
               <div className="mb-10 max-w-[560px]">
                 <div className="eyebrow mb-4">What We Hold To</div>
-                <h2 className="font-serif text-3xl font-medium md:text-[34px]">
+            <h2 className="font-serif text-[26px] font-medium sm:text-3xl md:text-[34px]">
                   A few things we don&apos;t compromise on
                 </h2>
               </div>
@@ -117,7 +117,7 @@ export default function OurStoryPage() {
         </div>
       </div>
 
-      <div className="wrap flex flex-col items-center gap-5 py-24 text-center md:py-28">
+      <div className="wrap flex flex-col items-center gap-5 py-16 text-center sm:py-20 md:py-28">
         <h2 className="font-serif text-3xl font-medium md:text-[36px]">Meet the valley itself.</h2>
         <Link href="/our-origin" className="btn btn-primary mt-3">
           See Our Origin

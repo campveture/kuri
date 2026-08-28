@@ -13,7 +13,7 @@ export default function ShopPage() {
 
   return (
     <div>
-      <div className="relative h-[240px] overflow-hidden md:h-[300px]">
+      <div className="relative h-[200px] overflow-hidden sm:h-[240px] md:h-[300px]">
         <Image
           src="/images/hero-2.jpg"
           alt="Close-up of a tea bush at a Sreemangal tea garden, Bangladesh"
@@ -25,16 +25,16 @@ export default function ShopPage() {
         <div className="absolute inset-0 bg-[rgba(43,36,28,0.45)]" />
         <div className="wrap relative flex h-full flex-col justify-end pb-10 text-cream">
           <div className="eyebrow mb-2 text-gold">The Collection</div>
-          <h1 className="font-serif text-3xl font-medium md:text-[38px]">All Tea</h1>
+          <h1 className="font-serif text-[28px] font-medium sm:text-3xl md:text-[38px]">All Tea</h1>
         </div>
       </div>
 
-      <div className="wrap py-16 md:py-20">
+      <div className="wrap py-12 sm:py-16 md:py-20">
         <p className="mb-14 max-w-[520px] text-[15px] leading-relaxed text-charcoal-2">
           Everything we make comes from one estate, one season at a time. No blending, no
           filler stock.
         </p>
-        <div className="grid grid-cols-2 gap-10 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-6 sm:gap-8 md:gap-10 md:grid-cols-4">
           {products.map((product) => (
             <ProductCard key={product.handle} product={product} />
           ))}

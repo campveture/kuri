@@ -50,7 +50,7 @@ export default function OurOriginPage() {
   return (
     <div>
       {/* Hero */}
-      <div className="relative h-[420px] overflow-hidden md:h-[480px]">
+      <div className="relative h-[320px] overflow-hidden sm:h-[420px] md:h-[480px]">
         <Image
           src="/images/shop-banner.jpg"
           alt="A path through tea garden rows in Sreemangal, Bangladesh"
@@ -70,18 +70,18 @@ export default function OurOriginPage() {
         <div className="wrap relative flex h-full flex-col items-start justify-center">
           <div className="mb-5 text-xs tracking-wide text-line">Home&nbsp;/&nbsp;Our Origin</div>
           <div className="eyebrow mb-3.5">Sreemangal, Sylhet Division, Bangladesh</div>
-          <h1 className="font-serif text-4xl font-medium text-cream md:text-[52px]">
+          <h1 className="font-serif text-[32px] font-medium text-cream sm:text-4xl md:text-[52px]">
             Kuri Valley Estate
           </h1>
         </div>
       </div>
 
       {/* The region */}
-      <div className="wrap py-24 md:py-28">
+      <div className="wrap py-16 sm:py-20 md:py-28">
         <div className="flex flex-col gap-12 md:flex-row md:gap-24">
           <div className="md:w-[300px] md:shrink-0">
             <div className="eyebrow mb-4">01 &mdash; The Region</div>
-            <h2 className="font-serif text-3xl font-medium md:text-[34px]">
+            <h2 className="font-serif text-[26px] font-medium sm:text-3xl md:text-[34px]">
               Bangladesh&apos;s tea country
             </h2>
           </div>
@@ -134,7 +134,7 @@ export default function OurOriginPage() {
           <div className="eyebrow mb-4">03 &mdash; The Process</div>
           <h2 className="font-serif text-3xl font-medium md:text-[34px]">Leaf to cup</h2>
         </div>
-        <div className="grid grid-cols-2 gap-10 md:grid-cols-5">
+        <div className="grid grid-cols-2 gap-6 sm:gap-8 md:gap-10 md:grid-cols-5">
           {steps.map((step, i) => {
             const Icon = step.icon;
             return (
@@ -152,10 +152,10 @@ export default function OurOriginPage() {
       </div>
 
       {/* Quote band */}
-      <div className="bg-charcoal py-28 text-cream md:py-32">
+      <div className="bg-charcoal py-20 text-cream sm:py-28 md:py-32">
         <div className="wrap max-w-[820px] text-center">
           <LeafQuoteIcon className="mx-auto mb-7 block" />
-          <div className="font-serif text-2xl italic leading-relaxed md:text-[30px]">
+          <div className="font-serif text-xl italic leading-relaxed sm:text-2xl md:text-[30px]">
             &ldquo;The valley decides the harvest. We just try not to get in the way.&rdquo;
           </div>
           <div className="mt-7 text-xs tracking-[0.12em] text-gold uppercase">
@@ -165,7 +165,7 @@ export default function OurOriginPage() {
       </div>
 
       {/* CTA */}
-      <div className="wrap py-24 text-center md:py-28">
+      <div className="wrap py-16 text-center sm:py-20 md:py-28">
         <h2 className="font-serif text-3xl font-medium md:text-[36px]">Taste the valley.</h2>
         <Link href="/shop" className="btn btn-primary mx-auto mt-7 w-fit">
           Shop Our Teas

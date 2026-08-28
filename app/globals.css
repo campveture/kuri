@@ -292,7 +292,6 @@ a:not(.btn):hover {
 .hero-sticky-bg {
   position: absolute;
   inset: 0;
-  background-image: url("/images/hero-2.jpg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -314,7 +313,6 @@ a:not(.btn):hover {
 .origin-sticky-bg {
   position: absolute;
   inset: 0;
-  background-image: url("/images/hero-1.jpg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -330,7 +328,6 @@ a:not(.btn):hover {
 .story-sticky-bg {
   position: absolute;
   inset: 0;
-  background-image: url("/images/harvest.jpg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;

@@ -57,13 +57,13 @@ export function Nav() {
           >
             <SearchIcon />
           </button>
-          <button
-            type="button"
-            aria-label="Account"
-            className="hidden text-[rgba(43,36,28,0.4)] cursor-default md:block"
+          <Link
+            href="/admin"
+            className="hidden text-charcoal md:block"
+            title="Admin Panel"
           >
             <AccountIcon />
-          </button>
+          </Link>
           <button
             type="button"
             aria-label="Open cart"

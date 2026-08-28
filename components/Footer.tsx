@@ -46,6 +46,9 @@ export function Footer() {
           <Link href="/photo-credits" className="underline">
             Photo Credits
           </Link>
+          <Link href="/admin" className="text-[rgba(91,81,64,0.3)] hover:text-[rgba(91,81,64,0.6)] transition-colors">
+            Admin
+          </Link>
         </div>
       </div>
     </footer>

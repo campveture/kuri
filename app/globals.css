@@ -277,6 +277,76 @@ a:not(.btn):hover {
   animation: kb-float 7s ease-in-out infinite;
 }
 
+/* ========================================
+   Sticky Background Sections
+   (luxmitea.com-style parallax)
+   Background images stay fixed while
+   content scrolls over them.
+   ======================================== */
+
+.hero-sticky {
+  height: 85vh;
+  min-height: 560px;
+  position: relative;
+}
+.hero-sticky-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url("/images/hero-2.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  z-index: 0;
+  animation: kb-kenburns 2.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.origin-sticky {
+  height: 80vh;
+  min-height: 480px;
+  position: relative;
+}
+@media (min-width: 768px) {
+  .origin-sticky {
+    height: 640px;
+  }
+}
+.origin-sticky-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url("/images/hero-1.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  z-index: 0;
+}
+
+.story-sticky {
+  height: 70vh;
+  min-height: 420px;
+  position: relative;
+}
+.story-sticky-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url("/images/harvest.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  z-index: 0;
+}
+
+/* iOS fallback — background-attachment: fixed is not supported on iOS Safari */
+@supports (-webkit-touch-callout: none) {
+  .hero-sticky-bg,
+  .origin-sticky-bg,
+  .story-sticky-bg {
+    background-attachment: scroll;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-img,
   .hero-line > span,
@@ -284,6 +354,9 @@ a:not(.btn):hover {
   .gold-shimmer,
   .grain::after,
   .float-slow {
+    animation: none !important;
+  }
+  .hero-sticky-bg {
     animation: none !important;
   }
   .reveal {

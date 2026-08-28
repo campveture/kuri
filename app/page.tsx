@@ -20,21 +20,14 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* Hero */}
-      <div className="grain relative h-[85vh] min-h-[560px] overflow-hidden">
-        <Image
-          src="/images/hero-2.jpg"
-          alt="Close-up of a tea bush at a Sreemangal tea garden, Bangladesh"
-          fill
-          priority
-          sizes="100vw"
-          className="hero-img object-cover"
-        />
+      {/* Hero — sticky background (luxmitea.com style) */}
+      <section className="hero-sticky relative overflow-hidden">
+        <div className="hero-sticky-bg" />
         <div
           className="absolute inset-0"
           style={{
             backgroundImage:
-              "linear-gradient(to top, rgba(43,36,28,0.75) 0%, rgba(43,36,28,0.2) 50%, rgba(43,36,28,0.08) 100%)",
+              "linear-gradient(to top, rgba(43,36,28,0.8) 0%, rgba(43,36,28,0.25) 50%, rgba(43,36,28,0.08) 100%)",
           }}
         />
         <HeroParticles
@@ -44,7 +37,7 @@ export default function HomePage() {
           size={4.5}
           className="absolute inset-0 h-full w-full"
         />
-        <div className="wrap relative flex h-full flex-col items-start justify-end pb-24 md:justify-center md:pb-0">
+        <div className="wrap relative z-10 flex h-full flex-col items-start justify-end pb-24 md:justify-center md:pb-0">
           <HeroLine delay={150}>
             <span className="eyebrow mb-4 block text-gold">Sreemangal, Bangladesh</span>
           </HeroLine>
@@ -71,14 +64,14 @@ export default function HomePage() {
         </div>
         {/* Scroll indicator */}
         <HeroLine delay={1300}>
-          <span className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 md:flex">
+          <span className="absolute bottom-6 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 md:flex">
             <span className="text-[10px] font-semibold tracking-[0.28em] text-[rgba(247,242,230,0.7)] uppercase">
               Scroll
             </span>
             <span className="float-slow block h-10 w-px bg-gradient-to-b from-gold to-transparent" />
           </span>
         </HeroLine>
-      </div>
+      </section>
 
       {/* Marquee band */}
       <div className="marquee bg-charcoal py-5" style={{ ["--marquee-speed" as string]: "42s" }}>
@@ -101,18 +94,13 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* Origin teaser: full-bleed photo with a floating, drifting card */}
-      <div className="grain relative h-[80vh] min-h-[480px] overflow-hidden md:h-[640px]">
-        <Image
-          src="/images/hero-1.jpg"
-          alt="Terraced tea garden hillside in Sreemangal"
-          fill
-          sizes="100vw"
-          className="object-cover"
-        />
+      {/* Origin teaser — sticky background (luxmitea.com style) */}
+      <section className="origin-sticky relative overflow-hidden">
+        <div className="origin-sticky-bg" />
+        <div className="grain absolute inset-0" />
         <Parallax
           strength={55}
-          className="absolute inset-x-6 bottom-10 md:inset-x-auto md:bottom-16 md:left-16 md:w-[440px]"
+          className="absolute inset-x-6 bottom-10 z-10 md:inset-x-auto md:bottom-16 md:left-16 md:w-[440px]"
         >
           <Reveal>
             <div className="bg-[rgba(247,242,230,0.94)] p-8 shadow-[0_24px_60px_rgba(43,36,28,0.35)] backdrop-blur-sm md:p-10">
@@ -133,7 +121,7 @@ export default function HomePage() {
             </div>
           </Reveal>
         </Parallax>
-      </div>
+      </section>
 
       {/* Featured collection */}
       <div className="bg-cream-2 py-24 md:py-28">
@@ -160,6 +148,39 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* Story teaser — sticky background (luxmitea.com style) */}
+      <section className="story-sticky relative overflow-hidden">
+        <div className="story-sticky-bg" />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, rgba(43,36,28,0.7) 0%, rgba(43,36,28,0.15) 100%)",
+          }}
+        />
+        <div className="wrap relative z-10 flex h-full items-center">
+          <Reveal>
+            <div className="max-w-[520px] py-20">
+              <div className="eyebrow mb-4 text-gold">Our Story</div>
+              <h2 className="font-serif text-3xl font-medium text-cream md:text-[40px]">
+                A century of growing, one valley at a time
+              </h2>
+              <p className="mt-5 text-[15px] leading-relaxed text-[rgba(247,242,230,0.85)]">
+                From the first bushes planted in Sreemangal to the cups you drink today &mdash;
+                three generations of hands in the same soil, tending the same hillside.
+              </p>
+              <Link
+                href="/our-story"
+                className="link-sweep mt-8 inline-flex items-center gap-2 text-sm font-semibold text-gold"
+              >
+                <span>Read Our Story</span>
+                <ArrowRightIcon />
+              </Link>
+            </div>
+          </Reveal>
+        </div>
+      </section>
 
       {/* Quote band */}
       <div className="bg-charcoal py-28 text-cream md:py-32">

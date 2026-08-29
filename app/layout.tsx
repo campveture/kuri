@@ -14,6 +14,9 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://kuri.vercel.app",
+  ),
   title: "Kuri — Single-Origin Tea from Sreemangal, Bangladesh",
   description:
     "Kuri Valley Estate grows single-origin tea in the hills of Sreemangal, Bangladesh. One garden, one team, no blending.",

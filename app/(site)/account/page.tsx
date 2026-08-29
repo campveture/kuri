@@ -5,12 +5,14 @@ import { prisma } from "@/lib/prisma";
 import { signOut } from "@/app/(auth)/actions";
 import { formatBDT, formatDate } from "@/lib/utils";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { ProfileForms } from "@/components/account/profile-forms";
+import { ChangePasswordForm } from "@/components/account/change-password-form";
 
 export const metadata: Metadata = { title: "Your account — Kuri" };
 
 export default async function AccountPage() {
   const user = await requireUser();
-  const [orders, subs] = await Promise.all([
+  const [orders, subs, defaultAddress] = await Promise.all([
     prisma.order.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
@@ -20,6 +22,10 @@ export default async function AccountPage() {
       where: { userId: user.id, status: { not: "CANCELLED" } },
       orderBy: { nextShipAt: "asc" },
       include: { product: { select: { name: true } } },
+    }),
+    prisma.address.findFirst({
+      where: { userId: user.id },
+      orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }],
     }),
   ]);
 
@@ -96,6 +102,21 @@ export default async function AccountPage() {
             </table>
           </div>
         )}
+      </section>
+
+      <section className="mt-12">
+        <h2 className="font-serif text-xl font-medium">Profile &amp; address</h2>
+        <ProfileForms
+          user={{ name: user.name, phone: user.phone }}
+          defaultAddress={defaultAddress}
+        />
+      </section>
+
+      <section className="mt-12 max-w-md">
+        <h2 className="font-serif text-xl font-medium">Password</h2>
+        <div className="mt-3">
+          <ChangePasswordForm />
+        </div>
       </section>
     </div>
   );

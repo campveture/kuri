@@ -2,10 +2,11 @@
 
 import { useState, type FormEvent } from "react";
 
-const CONTACT_EMAIL = "[EMAIL]"; // replace with a real inbox
+const FALLBACK_CONTACT_EMAIL = "[EMAIL]"; // replace with a real inbox
 
-export function ContactForm() {
+export function ContactForm({ contactEmail }: { contactEmail?: string }) {
   const [topic, setTopic] = useState("General");
+  const recipient = contactEmail || FALLBACK_CONTACT_EMAIL;
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -16,7 +17,7 @@ export function ContactForm() {
 
     const subject = encodeURIComponent(`[Kuri website] ${topic} inquiry from ${name}`);
     const body = encodeURIComponent(`${message}\n\n---\nFrom: ${name} (${email})`);
-    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
   }
 
   return (

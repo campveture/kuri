@@ -229,6 +229,15 @@ model Setting {
   value String
 }
 
+/// Editable content for the hand-built marketing pages (Our Origin, Our Story,
+/// Subscriptions, Contact, About, shop intro, home teasers). One row per page,
+/// `data` is a JSON blob whose shape + defaults live in lib/content.ts.
+model PageContent {
+  page      String   @id
+  data      String   @default("{}")
+  updatedAt DateTime  @updatedAt
+}
+
 /// Rate-limits sign-in. One row per attempt, keyed by client IP. Old rows are
 /// pruned opportunistically in the sign-in action.
 model LoginAttempt {

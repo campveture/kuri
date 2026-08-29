@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getAllProducts } from "@/lib/commerce";
+import { getFeaturedProducts, getNewArrivals } from "@/lib/queries";
 import { ProductCard } from "@/components/ProductCard";
 import { HeroParticles } from "@/components/HeroParticles";
 import { LeafQuoteIcon, ArrowRightIcon } from "@/components/Icons";
@@ -15,8 +15,9 @@ function HeroLine({ children, delay }: { children: React.ReactNode; delay: numbe
   );
 }
 
-export default function HomePage() {
-  const products = getAllProducts();
+export default async function HomePage() {
+  const featured = await getFeaturedProducts(4);
+  const products = featured.length ? featured : await getNewArrivals(4);
 
   return (
     <div>
@@ -141,7 +142,7 @@ export default function HomePage() {
           </Reveal>
           <div className="grid grid-cols-2 gap-6 sm:gap-8 md:gap-10 md:grid-cols-4">
             {products.map((product, i) => (
-              <Reveal key={product.handle} delay={i * 120}>
+              <Reveal key={product.id} delay={i * 120}>
                 <ProductCard product={product} imageBg="bg-cream" />
               </Reveal>
             ))}

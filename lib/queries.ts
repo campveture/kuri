@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { parseImages } from "@/lib/utils";
+import { parseImages, compareWeights } from "@/lib/utils";
 import { parseBlocks } from "@/lib/blocks";
 import type { Prisma } from "@prisma/client";
 
@@ -43,7 +43,7 @@ function toCard(
     inStock: p.variants.some((v) => v.stock > 0),
     featured: p.featured,
     variants: [...p.variants]
-      .sort((a, b) => a.sku.localeCompare(b.sku))
+      .sort((a, b) => compareWeights(a.size, b.size))
       .map((v) => ({ size: v.size, stock: v.stock })),
   };
 }
@@ -178,11 +178,12 @@ export async function getShopProducts(filters: ShopFilters): Promise<ProductCard
 export async function getProductBySlug(slug: string) {
   const p = await prisma.product.findFirst({
     where: { slug, active: true },
-    include: { category: true, variants: { orderBy: { sku: "asc" } } },
+    include: { category: true, variants: true },
   });
   if (!p) return null;
   return {
     ...p,
+    variants: [...p.variants].sort((a, b) => compareWeights(a.size, b.size)),
     imageList: parseImages(p.images),
     tastingNoteList: parseImages(p.tastingNotes),
   };

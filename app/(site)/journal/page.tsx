@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { getAllJournalPosts } from "@/lib/journal";
+import { getPublishedPosts } from "@/lib/queries";
+import { formatDate } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Journal — Kuri",
   description: "Notes on brewing, origin, and how Kuri tea is made.",
 };
 
-export default function JournalPage() {
-  const posts = getAllJournalPosts();
+const FALLBACK = "/images/harvest.jpg";
+
+export default async function JournalPage() {
+  const posts = await getPublishedPosts();
 
   return (
     <div className="wrap py-16 sm:py-20 md:py-24">
@@ -20,29 +23,35 @@ export default function JournalPage() {
           Brewing guides, origin notes, and the occasional dispatch from Sreemangal.
         </p>
       </div>
-      <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
-        {posts.map((post) => (
-          <Link key={post.slug} href={`/journal/${post.slug}`} className="group flex flex-col gap-5">
-            <div className="relative aspect-[16/10] overflow-hidden rounded-sm">
-              <Image
-                src={`/images/${post.image}`}
-                alt={post.imageAlt}
-                fill
-                sizes="(min-width: 768px) 33vw, 100vw"
-                className="object-cover"
-              />
-            </div>
-            <div>
-              <div className="eyebrow mb-2">{post.category}</div>
-              <div className="font-serif text-lg font-medium leading-snug transition-colors group-hover:text-green">
-                {post.title}
+      {posts.length === 0 ? (
+        <p className="text-[15px] text-muted-2">No journal entries yet.</p>
+      ) : (
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
+          {posts.map((post) => (
+            <Link key={post.slug} href={`/journal/${post.slug}`} className="group flex flex-col gap-5">
+              <div className="relative aspect-[16/10] overflow-hidden rounded-sm">
+                <Image
+                  src={post.coverImage || FALLBACK}
+                  alt={post.title}
+                  fill
+                  sizes="(min-width: 768px) 33vw, 100vw"
+                  className="object-cover"
+                />
               </div>
-              <p className="mt-2 text-[13px] leading-relaxed text-muted">{post.excerpt}</p>
-              <div className="mt-3 text-xs text-muted-2">{post.date}</div>
-            </div>
-          </Link>
-        ))}
-      </div>
+              <div>
+                <div className="eyebrow mb-2">{post.category}</div>
+                <div className="font-serif text-lg font-medium leading-snug transition-colors group-hover:text-green">
+                  {post.title}
+                </div>
+                <p className="mt-2 text-[13px] leading-relaxed text-muted">{post.excerpt}</p>
+                {post.publishedAt && (
+                  <div className="mt-3 text-xs text-muted-2">{formatDate(post.publishedAt)}</div>
+                )}
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

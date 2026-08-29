@@ -2,22 +2,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getAllJournalPosts, getJournalPostBySlug } from "@/lib/journal";
+import { getPostBySlug } from "@/lib/queries";
+import { formatDate } from "@/lib/utils";
 
-export function generateStaticParams() {
-  return getAllJournalPosts().map((post) => ({ slug: post.slug }));
-}
+const FALLBACK = "/images/harvest.jpg";
 
 export async function generateMetadata(props: PageProps<"/journal/[slug]">): Promise<Metadata> {
   const { slug } = await props.params;
-  const post = getJournalPostBySlug(slug);
+  const post = await getPostBySlug(slug);
   if (!post) return {};
   return { title: `${post.title} — Kuri Journal`, description: post.excerpt };
 }
 
 export default async function JournalPostPage(props: PageProps<"/journal/[slug]">) {
   const { slug } = await props.params;
-  const post = getJournalPostBySlug(slug);
+  const post = await getPostBySlug(slug);
   if (!post) notFound();
 
   return (
@@ -30,18 +29,18 @@ export default async function JournalPostPage(props: PageProps<"/journal/[slug]"
       <div className="wrap py-12 md:py-16">
         <div className="mx-auto max-w-[720px]">
           <div className="eyebrow mb-4">{post.category}</div>
-          <h1 className="font-serif text-3xl font-medium leading-tight md:text-[42px]">
-            {post.title}
-          </h1>
-          <div className="mt-4 text-xs text-muted-2">{post.date}</div>
+          <h1 className="font-serif text-3xl font-medium leading-tight md:text-[42px]">{post.title}</h1>
+          {post.publishedAt && (
+            <div className="mt-4 text-xs text-muted-2">{formatDate(post.publishedAt)}</div>
+          )}
         </div>
       </div>
 
       <div className="wrap mb-16">
         <div className="relative mx-auto aspect-[16/7] max-w-[900px] overflow-hidden rounded-sm">
           <Image
-            src={`/images/${post.image}`}
-            alt={post.imageAlt}
+            src={post.coverImage || FALLBACK}
+            alt={post.title}
             fill
             sizes="(min-width: 900px) 900px, 100vw"
             className="object-cover"
@@ -52,7 +51,7 @@ export default async function JournalPostPage(props: PageProps<"/journal/[slug]"
 
       <div className="wrap pb-28">
         <div className="mx-auto flex max-w-[720px] flex-col gap-6 text-[16px] leading-relaxed text-charcoal-2">
-          {post.body.map((paragraph, i) => (
+          {post.bodyList.map((paragraph, i) => (
             <p key={i}>{paragraph}</p>
           ))}
         </div>

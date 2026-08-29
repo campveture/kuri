@@ -79,6 +79,14 @@ export function formatDateTime(d: Date | string) {
   });
 }
 
+/** Sort tea weights ("50g" < "100g" < "250g"); non-numeric falls back to string order. */
+export function compareWeights(a: string, b: string) {
+  const na = parseFloat(a);
+  const nb = parseFloat(b);
+  if (Number.isFinite(na) && Number.isFinite(nb)) return na - nb;
+  return a.localeCompare(b);
+}
+
 export const ORDER_STATUS_FLOW = [
   "PENDING",
   "CONFIRMED",

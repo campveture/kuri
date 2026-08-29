@@ -2,16 +2,34 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { getAllProducts } from "@/lib/commerce";
 import { CloseIcon, SearchIcon } from "@/components/Icons";
+import { formatBDT } from "@/lib/utils";
+
+type Item = {
+  slug: string;
+  name: string;
+  category: string;
+  tastingNotes: string[];
+  price: number;
+  inStock: boolean;
+};
 
 export function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [query, setQuery] = useState("");
-  const products = useMemo(() => getAllProducts(), []);
+  const [items, setItems] = useState<Item[]>([]);
 
   useEffect(() => {
-    if (!isOpen) setQuery("");
-  }, [isOpen]);
+    if (!isOpen) {
+      setQuery("");
+      return;
+    }
+    if (items.length === 0) {
+      fetch("/api/products")
+        .then((r) => r.json())
+        .then((data: Item[]) => setItems(Array.isArray(data) ? data : []))
+        .catch(() => {});
+    }
+  }, [isOpen, items.length]);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -24,13 +42,13 @@ export function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: (
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
-    return products.filter(
+    return items.filter(
       (p) =>
         p.name.toLowerCase().includes(q) ||
         p.category.toLowerCase().includes(q) ||
-        p.tastingNotes.some((n) => n.toLowerCase().includes(q))
+        p.tastingNotes.some((n) => n.toLowerCase().includes(q)),
     );
-  }, [query, products]);
+  }, [query, items]);
 
   if (!isOpen) return null;
 
@@ -53,15 +71,15 @@ export function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: (
 
       <div className="wrap py-10">
         {query.trim() === "" ? (
-          <p className="text-sm text-muted-2">Start typing to search all-tea by name, category, or tasting note.</p>
+          <p className="text-sm text-muted-2">Start typing to search by name, category, or tasting note.</p>
         ) : results.length === 0 ? (
           <p className="text-sm text-muted-2">No teas match &ldquo;{query}&rdquo;.</p>
         ) : (
           <div className="flex flex-col gap-1">
             {results.map((p) => (
               <Link
-                key={p.handle}
-                href={`/shop/${p.handle}`}
+                key={p.slug}
+                href={`/shop/${p.slug}`}
                 onClick={onClose}
                 className="flex items-center justify-between border-b border-line py-4"
               >
@@ -71,7 +89,9 @@ export function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: (
                     {p.category} &middot; {p.tastingNotes.join(", ")}
                   </div>
                 </div>
-                <div className="text-sm font-semibold">From ৳{p.price}</div>
+                <div className="text-sm font-semibold">
+                  {p.inStock ? `From ${formatBDT(p.price)}` : "Sold out"}
+                </div>
               </Link>
             ))}
           </div>

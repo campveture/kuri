@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { getAllProducts } from "@/lib/commerce";
+import Link from "next/link";
+import { getShopProducts, type ShopFilters } from "@/lib/queries";
+import { getCategories } from "@/lib/queries";
+import { PRICE_BANDS } from "@/lib/site";
 import { ProductCard } from "@/components/ProductCard";
 
 export const metadata: Metadata = {
@@ -8,8 +11,34 @@ export const metadata: Metadata = {
   description: "Single-origin tea from Kuri Valley Estate, Sreemangal, Bangladesh.",
 };
 
-export default function ShopPage() {
-  const products = getAllProducts();
+const SORTS = [
+  { key: "new", label: "Newest" },
+  { key: "price-asc", label: "Price ↑" },
+  { key: "price-desc", label: "Price ↓" },
+];
+
+export default async function ShopPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  const sp = await searchParams;
+  const filters: ShopFilters = {
+    category: sp.category,
+    price: sp.price,
+    sort: (sp.sort as ShopFilters["sort"]) ?? "new",
+    q: sp.q,
+  };
+  const [products, categories] = await Promise.all([
+    getShopProducts(filters),
+    getCategories(),
+  ]);
+
+  const qs = (patch: Record<string, string | undefined>) => {
+    const merged = { ...sp, ...patch };
+    const entries = Object.entries(merged).filter(([, v]) => v);
+    return "?" + new URLSearchParams(entries as [string, string][]).toString();
+  };
 
   return (
     <div>
@@ -30,15 +59,53 @@ export default function ShopPage() {
       </div>
 
       <div className="wrap py-12 sm:py-16 md:py-20">
-        <p className="mb-14 max-w-[520px] text-[15px] leading-relaxed text-charcoal-2">
-          Everything we make comes from one estate, one season at a time. No blending, no
-          filler stock.
-        </p>
-        <div className="grid grid-cols-2 gap-6 sm:gap-8 md:gap-10 md:grid-cols-4">
-          {products.map((product) => (
-            <ProductCard key={product.handle} product={product} />
+        <div className="mb-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
+          <Link href="/shop" className={!filters.category ? "font-semibold" : "text-muted-2"}>
+            All
+          </Link>
+          {categories.map((c) => (
+            <Link
+              key={c.id}
+              href={qs({ category: c.slug })}
+              className={filters.category === c.slug ? "font-semibold" : "text-muted-2"}
+            >
+              {c.name}
+            </Link>
+          ))}
+          <span className="ml-auto flex gap-4">
+            {SORTS.map((s) => (
+              <Link
+                key={s.key}
+                href={qs({ sort: s.key })}
+                className={filters.sort === s.key ? "font-semibold" : "text-muted-2"}
+              >
+                {s.label}
+              </Link>
+            ))}
+          </span>
+        </div>
+
+        <div className="mb-12 flex flex-wrap gap-2 text-xs">
+          {PRICE_BANDS.map((b) => (
+            <Link
+              key={b.key}
+              href={qs({ price: filters.price === b.key ? undefined : b.key })}
+              className={`chip ${filters.price === b.key ? "border-charcoal text-charcoal" : ""}`}
+            >
+              {b.label}
+            </Link>
           ))}
         </div>
+
+        {products.length === 0 ? (
+          <p className="text-[15px] text-muted-2">No teas match that filter.</p>
+        ) : (
+          <div className="grid grid-cols-2 gap-6 sm:gap-8 md:grid-cols-4 md:gap-10">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

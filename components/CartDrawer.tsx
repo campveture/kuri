@@ -1,12 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useCart } from "@/components/CartContext";
+import { useCart, lineKey } from "@/components/CartContext";
 import { CloseIcon } from "@/components/Icons";
-
-function formatBDT(amount: number) {
-  return `৳${amount.toLocaleString("en-US")}`;
-}
+import { formatBDT } from "@/lib/utils";
 
 export function CartDrawer() {
   const { lines, isOpen, closeCart, updateQuantity, removeItem, totalPrice } = useCart();
@@ -38,55 +35,55 @@ export function CartDrawer() {
             <p className="text-sm text-muted-2">Your cart is empty.</p>
           ) : (
             <div className="flex flex-col gap-6">
-              {lines.map((line) => (
-                <div key={`${line.handle}-${line.purchaseOption}`} className="flex gap-4">
-                  <div
-                    className="h-16 w-16 shrink-0 rounded-sm"
-                    style={{ backgroundColor: line.color }}
-                  />
-                  <div className="flex-1">
-                    <div className="text-sm font-semibold">{line.name}</div>
-                    <div className="mt-1 text-xs text-muted-2">
-                      {line.purchaseOption === "subscribe" ? "Subscribe & save" : "One-time purchase"}
-                    </div>
-                    <div className="mt-2 flex items-center gap-3">
-                      <div className="flex items-center border border-[rgba(43,36,28,0.3)] text-xs">
+              {lines.map((line) => {
+                const key = lineKey(line);
+                return (
+                  <div key={key} className="flex gap-4">
+                    <div className="h-16 w-16 shrink-0 rounded-sm" style={{ backgroundColor: line.accent }} />
+                    <div className="flex-1">
+                      <div className="text-sm font-semibold">{line.name}</div>
+                      <div className="mt-1 text-xs text-muted-2">
+                        {line.size} ·{" "}
+                        {line.purchaseOption === "subscribe"
+                          ? `Subscribe (every ${line.frequencyWeeks} wks)`
+                          : "One-time"}
+                      </div>
+                      <div className="mt-2 flex items-center gap-3">
+                        <div className="flex items-center border border-[rgba(43,36,28,0.3)] text-xs">
+                          <button
+                            type="button"
+                            className="px-2 py-1"
+                            onClick={() => updateQuantity(key, line.quantity - 1)}
+                            aria-label="Decrease quantity"
+                          >
+                            &minus;
+                          </button>
+                          <span className="px-2 py-1 font-medium">{line.quantity}</span>
+                          <button
+                            type="button"
+                            className="px-2 py-1 disabled:opacity-30"
+                            disabled={line.quantity >= line.maxStock}
+                            onClick={() => updateQuantity(key, line.quantity + 1)}
+                            aria-label="Increase quantity"
+                          >
+                            +
+                          </button>
+                        </div>
                         <button
                           type="button"
-                          className="px-2 py-1"
-                          onClick={() =>
-                            updateQuantity(line.handle, line.purchaseOption, line.quantity - 1)
-                          }
-                          aria-label="Decrease quantity"
+                          className="text-xs text-muted-2 underline"
+                          onClick={() => removeItem(key)}
                         >
-                          &minus;
-                        </button>
-                        <span className="px-2 py-1 font-medium">{line.quantity}</span>
-                        <button
-                          type="button"
-                          className="px-2 py-1"
-                          onClick={() =>
-                            updateQuantity(line.handle, line.purchaseOption, line.quantity + 1)
-                          }
-                          aria-label="Increase quantity"
-                        >
-                          +
+                          Remove
                         </button>
                       </div>
-                      <button
-                        type="button"
-                        className="text-xs text-muted-2 underline"
-                        onClick={() => removeItem(line.handle, line.purchaseOption)}
-                      >
-                        Remove
-                      </button>
+                    </div>
+                    <div className="text-sm font-semibold">
+                      {formatBDT(line.unitPrice * line.quantity)}
                     </div>
                   </div>
-                  <div className="text-sm font-semibold">
-                    {formatBDT(line.unitPrice * line.quantity)}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -96,16 +93,17 @@ export function CartDrawer() {
             <span>Subtotal</span>
             <span>{formatBDT(totalPrice)}</span>
           </div>
-          <button
-            type="button"
-            disabled={lines.length === 0}
-            className="btn btn-primary w-full disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Checkout
-          </button>
+          {lines.length === 0 ? (
+            <button type="button" disabled className="btn btn-primary w-full opacity-40">
+              Checkout
+            </button>
+          ) : (
+            <Link href="/checkout" onClick={closeCart} className="btn btn-primary block w-full text-center">
+              Checkout
+            </Link>
+          )}
           <p className="mt-3 text-center text-[11px] text-muted-2">
-            Checkout isn&apos;t wired up yet -- this site isn&apos;t connected to a payment
-            processor.
+            Shipping calculated at checkout · COD, bKash &amp; Nagad
           </p>
           <Link
             href="/shop"

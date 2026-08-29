@@ -1,0 +1,415 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Pooled connection (PgBouncer, `-pooler` host) for the app at runtime.
+  url       = env("DATABASE_URL")
+  // Direct/unpooled connection for migrations. `neon env pull` writes this name;
+  // for a single-host DB (local Docker) set it to the same value as DATABASE_URL.
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  phone         String?
+  passwordHash  String
+  role          Role           @default(CUSTOMER)
+  addresses     Address[]
+  orders        Order[]
+  storeSales    StoreSale[]
+  subscriptions Subscription[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+model Address {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  label     String   @default("Home")
+  fullName  String
+  phone     String
+  line1     String
+  area      String
+  city      String   @default("Dhaka")
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  image       String? // optional background for the homepage category card
+  position    Int       @default(0)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+}
+
+/// Curated product groups, separate from the single required Category.
+model Collection {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  image       String?
+  position    Int       @default(0)
+  active      Boolean   @default(true)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+}
+
+model Product {
+  id             String           @id @default(cuid())
+  name           String
+  slug           String           @unique
+  description    String
+  price          Int // BDT, whole taka
+  compareAtPrice Int?
+  costPrice      Int              @default(0) // BDT unit cost — used for COGS / profit
+  subscribePrice Int? // BDT subscribe-&-save price; null = not subscribable
+  category       Category         @relation(fields: [categoryId], references: [id])
+  categoryId     String
+  collections    Collection[]
+  images         String           @default("[]") // JSON string array of image paths
+  tags           String           @default("") // comma separated
+
+  // Tea-specific detail (shown on the product page). Placeholders until real data.
+  tastingNotes String  @default("[]") // JSON string array
+  origin       String?
+  altitude     String?
+  process      String?
+  harvest      String?
+  brewTemp     String?
+  brewDose     String?
+  brewSteep    String?
+  brewBestWith String?
+  accent       String  @default("#C89A3E") // pouch illustration colour
+  accentDark   String  @default("#A97F2E")
+
+  featured   Boolean         @default(false)
+  active     Boolean         @default(true)
+  position   Int             @default(0)
+  variants   ProductVariant[]
+  orderItems OrderItem[]
+  subscriptions Subscription[]
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+}
+
+model ProductVariant {
+  id        String   @id @default(cuid())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  size      String // tea weight: 50g / 100g / 250g
+  stock     Int      @default(0) // online-store stock (the website sells from this)
+  sku       String   @unique
+
+  inventory InventoryLevel[]
+  saleItems StoreSaleItem[]
+
+  @@unique([productId, size])
+}
+
+model Order {
+  id             String        @id @default(cuid())
+  orderNumber    String        @unique
+  user           User?         @relation(fields: [userId], references: [id])
+  userId         String?
+  customerName   String
+  phone          String
+  email          String?
+  addressLine    String
+  area           String
+  city           String        @default("Dhaka")
+  note           String?
+  paymentMethod  PaymentMethod @default(COD)
+  paymentStatus  PaymentStatus @default(UNPAID)
+  transactionId  String?
+  senderNumber   String?
+  subtotal       Int
+  discount       Discount?     @relation(fields: [discountId], references: [id])
+  discountId     String?
+  discountCode   String?
+  discountAmount Int           @default(0)
+  shipping       Int
+  total          Int
+  status         OrderStatus   @default(PENDING)
+  courier        String?
+  trackingCode   String?
+  source         String        @default("storefront") // storefront | admin | subscription
+
+  subscription       Subscription? @relation(fields: [subscriptionId], references: [id])
+  subscriptionId     String?
+  isSubscriptionSeed Boolean       @default(false) // the first order that opened a subscription
+
+  items     OrderItem[]
+  timeline  OrderEvent[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+enum DiscountType {
+  PERCENT
+  FIXED
+}
+
+model Discount {
+  id          String       @id @default(cuid())
+  code        String       @unique
+  type        DiscountType @default(PERCENT)
+  value       Int // percent 1-100, or whole taka
+  minSubtotal Int          @default(0)
+  maxUses     Int? // null = unlimited
+  usedCount   Int          @default(0)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  active      Boolean      @default(true)
+  orders      Order[]
+  createdAt   DateTime     @default(now())
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId     String
+  product     Product? @relation(fields: [productId], references: [id])
+  productId   String?
+  productName String
+  image       String
+  size        String
+  price       Int
+  cost        Int      @default(0) // unit cost snapshot at sale time — for COGS
+  quantity    Int
+}
+
+model OrderEvent {
+  id        String   @id @default(cuid())
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+  label     String
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+enum PaymentMethod {
+  COD
+  BKASH
+  NAGAD
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING_VERIFICATION
+  PAID
+  REFUNDED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PACKED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Setting {
+  key   String @id
+  value String
+}
+
+/// Rate-limits sign-in. One row per attempt, keyed by client IP. Old rows are
+/// pruned opportunistically in the sign-in action.
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  key       String
+  success   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([key, createdAt])
+}
+
+/* ===================== Journal (blog) ===================== */
+
+model Post {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  title       String
+  excerpt     String
+  category    String
+  body        String     @default("[]") // JSON array of paragraph strings
+  coverImage  String?
+  status      PageStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+/* ===================== Subscriptions ===================== */
+
+enum SubStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+}
+
+/// "Subscribe & save" — manual fulfilment. The admin advances / pauses / cancels
+/// each one and generates the next Order from /admin/subscriptions.
+model Subscription {
+  id             String    @id @default(cuid())
+  user           User?     @relation(fields: [userId], references: [id])
+  userId         String?
+  customerName   String
+  phone          String
+  email          String?
+  addressLine    String
+  area           String
+  city           String    @default("Dhaka")
+  product        Product   @relation(fields: [productId], references: [id])
+  productId      String
+  variantId      String?
+  size           String
+  frequencyWeeks Int       @default(4)
+  priceAtSignup  Int
+  nextShipAt     DateTime
+  status         SubStatus @default(ACTIVE)
+  lastOrderId    String?
+  orders         Order[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([status, nextShipAt])
+}
+
+/* ========================= Landing pages ========================= */
+
+enum PageStatus {
+  DRAFT
+  PUBLISHED
+}
+
+/// Block-composed pages. One row with isHome=true drives the storefront home;
+/// every other published row is reachable at /<slug>.
+model Page {
+  id             String     @id @default(cuid())
+  slug           String     @unique
+  title          String
+  status         PageStatus @default(DRAFT)
+  isHome         Boolean    @default(false)
+  blocks         String     @default("[]") // JSON array: [{ id, type, ...props }]
+  seoTitle       String?
+  seoDescription String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
+/* ===================== ERP / physical stores ===================== */
+
+enum LocationKind {
+  ONLINE
+  STORE
+}
+
+/// A place stock lives and sales happen. Exactly one ONLINE location mirrors
+/// the website (its stock is ProductVariant.stock); STORE rows are physical shops.
+model Location {
+  id        String           @id @default(cuid())
+  name      String
+  slug      String           @unique
+  kind      LocationKind     @default(STORE)
+  address   String?
+  phone     String?
+  active    Boolean          @default(true)
+  position  Int              @default(0)
+  inventory InventoryLevel[]
+  sales     StoreSale[]
+  expenses  Expense[]
+  createdAt DateTime         @default(now())
+}
+
+/// Per-STORE stock for a variant. The ONLINE location does not use this table —
+/// its quantity is ProductVariant.stock, kept authoritative for checkout.
+model InventoryLevel {
+  id         String         @id @default(cuid())
+  location   Location       @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  locationId String
+  variant    ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  variantId  String
+  quantity   Int            @default(0)
+  updatedAt  DateTime       @updatedAt
+
+  @@unique([locationId, variantId])
+  @@index([variantId])
+}
+
+/// A walk-in / counter sale rung up in the admin POS. Kept separate from Order
+/// (no shipping, courier, account). Reports union the two.
+model StoreSale {
+  id            String          @id @default(cuid())
+  number        String          @unique
+  location      Location        @relation(fields: [locationId], references: [id])
+  locationId    String
+  soldBy        User?           @relation(fields: [soldById], references: [id])
+  soldById      String?
+  customerName  String?
+  customerPhone String?
+  subtotal      Int
+  discount      Int             @default(0)
+  total         Int
+  cost          Int             @default(0) // COGS snapshot (sum of unitCost * qty)
+  paymentMethod String          @default("CASH") // CASH | BKASH | NAGAD | CARD
+  note          String?
+  items         StoreSaleItem[]
+  createdAt     DateTime        @default(now())
+
+  @@index([locationId, createdAt])
+}
+
+model StoreSaleItem {
+  id          String          @id @default(cuid())
+  sale        StoreSale       @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  saleId      String
+  variant     ProductVariant? @relation(fields: [variantId], references: [id])
+  variantId   String?
+  productName String
+  size        String
+  unitPrice   Int
+  unitCost    Int             @default(0)
+  quantity    Int
+}
+
+enum ExpenseCategory {
+  RENT
+  SALARY
+  UTILITIES
+  MARKETING
+  SUPPLIES
+  LOGISTICS
+  RESTOCK
+  OTHER
+}
+
+/// A cost the business incurs. locationId null = company-wide.
+model Expense {
+  id         String          @id @default(cuid())
+  location   Location?       @relation(fields: [locationId], references: [id])
+  locationId String?
+  category   ExpenseCategory @default(OTHER)
+  amount     Int
+  note       String?
+  incurredAt DateTime        @default(now())
+  createdAt  DateTime        @default(now())
+
+  @@index([incurredAt])
+}

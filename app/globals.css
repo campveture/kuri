@@ -141,6 +141,127 @@ a:not(.btn):hover {
   color: var(--color-gold-deep);
 }
 
+/* ---------- Admin & forms ---------- *
+ * Shared UI classes for the admin panel, auth pages, checkout and account.
+ * Ported components map SlayVault classes to these:
+ *   btn-gold        -> btn btn-primary          card-slay   -> card
+ *   input-slay      -> input                    label-slay  -> label
+ *   heading-display -> h-display                text-negative -> text-negative
+ *   text-smoke/bone -> text-[--color-muted] / -muted-2
+ */
+
+.h-display {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  color: var(--color-charcoal);
+}
+
+.card {
+  background: #fff;
+  border: 1px solid var(--color-line);
+  border-radius: 4px;
+}
+
+.label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted-2);
+  margin-bottom: 6px;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  background: #fff;
+  border: 1px solid var(--color-line);
+  border-radius: 3px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--color-charcoal);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.textarea { min-height: 96px; resize: vertical; }
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-gold-deep);
+  box-shadow: 0 0 0 3px rgba(200, 154, 62, 0.15);
+}
+.input::placeholder,
+.textarea::placeholder { color: var(--color-muted-2); }
+
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 12px;
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--color-charcoal);
+  border-color: var(--color-line);
+}
+.btn-ghost:hover { background: var(--color-cream-2); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.text-negative { color: #b03636; }
+.text-positive { color: var(--color-green); }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--color-line);
+  color: var(--color-muted);
+  background: var(--color-cream);
+}
+
+.admin-shell {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 100vh;
+  background: var(--color-cream);
+}
+@media (min-width: 1024px) {
+  .admin-shell { grid-template-columns: 244px 1fr; }
+}
+.admin-sidebar {
+  background: var(--color-charcoal);
+  color: var(--color-cream);
+}
+.admin-navlink {
+  display: block;
+  padding: 9px 14px;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(247, 242, 230, 0.72);
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.admin-navlink:hover { background: rgba(247, 242, 230, 0.08); color: var(--color-cream); }
+.admin-navlink[data-active="true"] {
+  background: var(--color-gold);
+  color: var(--color-charcoal);
+  font-weight: 600;
+}
+.hairline-grid {
+  background-image:
+    linear-gradient(rgba(247, 242, 230, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(247, 242, 230, 0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
 /* ---------- Motion system ---------- */
 
 @keyframes kb-fade-up {

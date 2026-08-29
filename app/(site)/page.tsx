@@ -7,8 +7,6 @@ import { LeafQuoteIcon, ArrowRightIcon } from "@/components/Icons";
 import { Reveal } from "@/components/Reveal";
 import { Parallax } from "@/components/Parallax";
 
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-
 function HeroLine({ children, delay }: { children: React.ReactNode; delay: number }) {
   return (
     <span className="hero-line">
@@ -24,7 +22,7 @@ export default function HomePage() {
     <div>
       {/* Hero — sticky background (luxmitea.com style) */}
       <section className="hero-sticky relative overflow-hidden">
-        <div className="hero-sticky-bg" style={{ backgroundImage: `url("${basePath}/images/hero-2.jpg")` }} />
+        <div className="hero-sticky-bg" style={{ backgroundImage: `url("/images/hero-2.jpg")` }} />
         <div
           className="absolute inset-0"
           style={{
@@ -98,7 +96,7 @@ export default function HomePage() {
 
       {/* Origin teaser — sticky background (luxmitea.com style) */}
       <section className="origin-sticky relative overflow-hidden">
-        <div className="origin-sticky-bg" style={{ backgroundImage: `url("${basePath}/images/hero-1.jpg")` }} />
+        <div className="origin-sticky-bg" style={{ backgroundImage: `url("/images/hero-1.jpg")` }} />
         <div className="grain absolute inset-0" />
         <Parallax
           strength={55}
@@ -153,7 +151,7 @@ export default function HomePage() {
 
       {/* Story teaser — sticky background (luxmitea.com style) */}
       <section className="story-sticky relative overflow-hidden">
-        <div className="story-sticky-bg" style={{ backgroundImage: `url("${basePath}/images/harvest.jpg")` }} />
+        <div className="story-sticky-bg" style={{ backgroundImage: `url("/images/harvest.jpg")` }} />
         <div
           className="absolute inset-0"
           style={{

@@ -32,9 +32,19 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
+
+# neon (linked org/project/branch)
+.neon
+
+# prisma local db
+/prisma/*.db
+
+# admin image uploads (local-disk fallback)
+/public/uploads
 
 # typescript
 *.tsbuildinfo

@@ -10,6 +10,7 @@ const links = [
   { href: "/subscriptions", label: "Subscriptions" },
   { href: "/journal", label: "Journal" },
   { href: "/contact", label: "Contact" },
+  { href: "/account", label: "Account" },
 ];
 
 export function MobileMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {

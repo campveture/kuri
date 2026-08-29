@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useCart } from "@/components/CartContext";
-import { BagIcon, ChevronDownIcon, MenuIcon, SearchIcon } from "@/components/Icons";
+import { AccountIcon, BagIcon, ChevronDownIcon, MenuIcon, SearchIcon } from "@/components/Icons";
 import { SearchOverlay } from "@/components/SearchOverlay";
 import { MobileMenu } from "@/components/MobileMenu";
 
@@ -51,6 +51,9 @@ export function Nav() {
           <button type="button" aria-label="Search" className="nav-icon-btn" onClick={() => setSearchOpen(true)}>
             <SearchIcon size={18} />
           </button>
+          <Link href="/account" aria-label="Account" className="nav-icon-btn">
+            <AccountIcon size={18} />
+          </Link>
           <button type="button" aria-label="Open cart" onClick={openCart} className="nav-icon-btn relative">
             <BagIcon size={18} />
             {totalCount > 0 && (

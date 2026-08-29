@@ -97,9 +97,10 @@ export async function deletePost(id: string) {
     where: { id },
     select: { slug: true },
   });
+  if (!post) return { error: "Journal entry not found." };
   await prisma.post.delete({ where: { id } });
   revalidatePath("/journal");
-  if (post) revalidatePath("/journal/" + post.slug);
+  revalidatePath("/journal/" + post.slug);
   revalidatePath("/admin/journal");
   return { ok: true };
 }

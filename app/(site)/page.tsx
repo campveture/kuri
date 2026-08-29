@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getFeaturedProducts, getNewArrivals } from "@/lib/queries";
+import { getFeaturedProducts, getNewArrivals, getHomePage, type ProductCard as Card } from "@/lib/queries";
 import { ProductCard } from "@/components/ProductCard";
+import { BlockRenderer } from "@/components/blocks/block-renderer";
 import { HeroParticles } from "@/components/HeroParticles";
 import { LeafQuoteIcon, ArrowRightIcon } from "@/components/Icons";
 import { Reveal } from "@/components/Reveal";
@@ -16,9 +17,15 @@ function HeroLine({ children, delay }: { children: React.ReactNode; delay: numbe
 }
 
 export default async function HomePage() {
+  const home = await getHomePage();
+  if (home) return <BlockRenderer blocks={home.parsedBlocks} />;
+
   const featured = await getFeaturedProducts(4);
   const products = featured.length ? featured : await getNewArrivals(4);
+  return <KuriDefaultHome products={products} />;
+}
 
+function KuriDefaultHome({ products }: { products: Card[] }) {
   return (
     <div>
       {/* Hero — sticky background (luxmitea.com style) */}

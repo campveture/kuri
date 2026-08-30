@@ -55,8 +55,9 @@ export function LocationForm({
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="label">Store name</label>
+          <label className="label" htmlFor="loc-name">Store name</label>
           <input
+            id="loc-name"
             className="input"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -65,8 +66,9 @@ export function LocationForm({
           />
         </div>
         <div>
-          <label className="label">Slug</label>
+          <label className="label" htmlFor="loc-slug">Slug</label>
           <input
+            id="loc-slug"
             className="input"
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
@@ -75,8 +77,9 @@ export function LocationForm({
         </div>
       </div>
       <div>
-        <label className="label">Address</label>
+        <label className="label" htmlFor="loc-address">Address</label>
         <input
+          id="loc-address"
           className="input"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
@@ -84,8 +87,9 @@ export function LocationForm({
         />
       </div>
       <div>
-        <label className="label">Phone</label>
+        <label className="label" htmlFor="loc-phone">Phone</label>
         <input
+          id="loc-phone"
           className="input"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}

@@ -107,8 +107,9 @@ export function PageBuilder({
       <div className="card space-y-4 p-5">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="label">Page title</label>
+            <label className="label" htmlFor="pb-title">Page title</label>
             <input
+              id="pb-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="input"
@@ -116,15 +117,16 @@ export function PageBuilder({
           </div>
           {page.isHome ? (
             <div>
-              <label className="label">URL</label>
+              <span className="label">URL</span>
               <p className="text-sm text-muted-2">This is the homepage.</p>
             </div>
           ) : (
             <div>
-              <label className="label">URL slug</label>
+              <label className="label" htmlFor="pb-slug">URL slug</label>
               <div className="flex items-center gap-1">
                 <span className="text-sm text-muted-2">/</span>
                 <input
+                  id="pb-slug"
                   value={slug}
                   placeholder="eid-drop"
                   onChange={(e) => setSlug(e.target.value)}
@@ -137,6 +139,7 @@ export function PageBuilder({
         <div className="flex flex-wrap items-center gap-3">
           {!page.isHome && (
             <select
+              aria-label="Publish status"
               value={status}
               onChange={(e) =>
                 setStatus(e.target.value as "DRAFT" | "PUBLISHED")
@@ -177,12 +180,14 @@ export function PageBuilder({
           </summary>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <input
+              aria-label="SEO title"
               value={seoTitle}
               onChange={(e) => setSeoTitle(e.target.value)}
               placeholder="SEO title"
               className="input"
             />
             <input
+              aria-label="SEO description"
               value={seoDescription}
               onChange={(e) => setSeoDescription(e.target.value)}
               placeholder="SEO description"
@@ -214,6 +219,7 @@ export function PageBuilder({
       {/* add */}
       <div className="flex items-center gap-2 border-t border-line pt-5">
         <select
+          aria-label="Section type to add"
           value={addType}
           onChange={(e) => setAddType(e.target.value as BlockType)}
           className="select w-auto py-2 text-xs"
@@ -288,6 +294,7 @@ function BlockCard({
         {meta.fields.map((f) => (
           <FieldInput
             key={f.name}
+            id={`blk-${block.id}-${f.name}`}
             field={f}
             value={rec[f.name]}
             collections={collections}
@@ -300,11 +307,13 @@ function BlockCard({
 }
 
 function FieldInput({
+  id,
   field,
   value,
   collections,
   onChange,
 }: {
+  id: string;
   field: Field;
   value: unknown;
   collections: { name: string; slug: string }[];
@@ -340,15 +349,17 @@ function FieldInput({
 
   return (
     <div className={wide ? "sm:col-span-2" : undefined}>
-      <label className="label">{field.label}</label>
+      <label className="label" htmlFor={id}>{field.label}</label>
       {kind === "textarea" ? (
         <textarea
+          id={id}
           value={String(value ?? "")}
           onChange={(e) => onChange(e.target.value)}
           className="textarea min-h-20"
         />
       ) : kind === "number" ? (
         <input
+          id={id}
           type="number"
           value={Number(value ?? 0)}
           onChange={(e) => onChange(Number(e.target.value))}
@@ -356,6 +367,7 @@ function FieldInput({
         />
       ) : kind === "collection" ? (
         <select
+          id={id}
           value={String(value ?? "")}
           onChange={(e) => onChange(e.target.value)}
           className="select"
@@ -369,6 +381,7 @@ function FieldInput({
         </select>
       ) : typeof kind === "object" && "select" in kind ? (
         <select
+          id={id}
           value={String(value ?? "")}
           onChange={(e) => onChange(e.target.value)}
           className="select"
@@ -381,6 +394,7 @@ function FieldInput({
         </select>
       ) : (
         <input
+          id={id}
           value={String(value ?? "")}
           onChange={(e) => onChange(e.target.value)}
           className="input"

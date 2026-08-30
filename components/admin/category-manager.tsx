@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition, useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
 import { saveCategory, deleteCategory } from "@/app/admin/actions";
 import { toast } from "@/components/ui/toaster";
@@ -107,6 +108,15 @@ export function CategoryManager({ categories }: { categories: Cat[] }) {
   );
 }
 
+function SaveBtn({ editing }: { editing: boolean }) {
+  const { pending } = useFormStatus();
+  return (
+    <button className="btn btn-primary btn-sm flex-1" disabled={pending}>
+      {pending ? "Saving…" : editing ? "Save" : "Add"}
+    </button>
+  );
+}
+
 function CategoryForm({
   editing,
   action,
@@ -125,14 +135,14 @@ function CategoryForm({
       <h2 className="h-display text-lg">{editing ? "Edit category" : "Add category"}</h2>
       {editing && <input type="hidden" name="id" value={editing.id} />}
 
-      <label className="label mt-3">Name</label>
-      <input name="name" defaultValue={editing?.name} className="input" required />
+      <label className="label mt-3" htmlFor="cat-name">Name</label>
+      <input id="cat-name" name="name" defaultValue={editing?.name} className="input" required />
 
-      <label className="label mt-3">Slug (optional)</label>
-      <input name="slug" defaultValue={editing?.slug} className="input" placeholder="auto from name" />
+      <label className="label mt-3" htmlFor="cat-slug">Slug (optional)</label>
+      <input id="cat-slug" name="slug" defaultValue={editing?.slug} className="input" placeholder="auto from name" />
 
-      <label className="label mt-3">Description</label>
-      <textarea name="description" defaultValue={editing?.description ?? ""} className="textarea" />
+      <label className="label mt-3" htmlFor="cat-description">Description</label>
+      <textarea id="cat-description" name="description" defaultValue={editing?.description ?? ""} className="textarea" />
 
       <div className="mt-4">
         <ImageUploader
@@ -148,7 +158,7 @@ function CategoryForm({
       {error && <p className="mt-2 text-xs text-negative">{error}</p>}
 
       <div className="mt-4 flex gap-2">
-        <button className="btn btn-primary btn-sm flex-1">{editing ? "Save" : "Add"}</button>
+        <SaveBtn editing={Boolean(editing)} />
         {editing && (
           <button type="button" className="btn btn-outline btn-sm" onClick={onNew}>
             New

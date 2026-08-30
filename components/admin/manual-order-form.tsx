@@ -118,6 +118,7 @@ export function ManualOrderForm({ products }: { products: PickProduct[] }) {
 
           {lines.length > 0 && (
             <div className="mb-3 space-y-2">
+              {/* index key ok: row inputs are controlled from state, no internal state */}
               {lines.map((l, i) => {
                 const p = byId.get(l.productId);
                 if (!p) return null;
@@ -135,6 +136,7 @@ export function ManualOrderForm({ products }: { products: PickProduct[] }) {
                     </div>
                     <span className="flex-1 truncate">{p.name}</span>
                     <select
+                      aria-label={`Weight for ${p.name}`}
                       value={l.size}
                       onChange={(e) => updateLine(i, { size: e.target.value })}
                       className="select w-24 py-1.5 text-xs"
@@ -152,6 +154,7 @@ export function ManualOrderForm({ products }: { products: PickProduct[] }) {
                     <input
                       type="number"
                       min={1}
+                      aria-label={`Quantity for ${p.name}`}
                       value={l.quantity}
                       onChange={(e) =>
                         updateLine(i, {
@@ -165,6 +168,7 @@ export function ManualOrderForm({ products }: { products: PickProduct[] }) {
                     </span>
                     <button
                       type="button"
+                      aria-label={`Remove ${p.name}`}
                       onClick={() => removeLine(i)}
                       className="px-1 text-muted-2 hover:text-negative"
                     >
@@ -176,7 +180,9 @@ export function ManualOrderForm({ products }: { products: PickProduct[] }) {
             </div>
           )}
 
+          <label className="sr-only" htmlFor="mo-product-search">Search a product to add</label>
           <input
+            id="mo-product-search"
             className="input py-2 text-sm"
             placeholder="Search a product to add…"
             value={q}
@@ -218,8 +224,9 @@ export function ManualOrderForm({ products }: { products: PickProduct[] }) {
         <section className="card grid gap-4 p-5 sm:grid-cols-2">
           <h2 className="label sm:col-span-2">Customer</h2>
           <div className="sm:col-span-2">
-            <label className="label">Name</label>
+            <label className="label" htmlFor="mo-name">Name</label>
             <input
+              id="mo-name"
               className="input"
               value={c.customerName}
               onChange={(e) => setC({ ...c, customerName: e.target.value })}
@@ -227,8 +234,9 @@ export function ManualOrderForm({ products }: { products: PickProduct[] }) {
             />
           </div>
           <div>
-            <label className="label">Phone</label>
+            <label className="label" htmlFor="mo-phone">Phone</label>
             <input
+              id="mo-phone"
               className="input"
               value={c.phone}
               onChange={(e) => setC({ ...c, phone: e.target.value })}
@@ -236,40 +244,45 @@ export function ManualOrderForm({ products }: { products: PickProduct[] }) {
             />
           </div>
           <div>
-            <label className="label">Email (optional)</label>
+            <label className="label" htmlFor="mo-email">Email (optional)</label>
             <input
+              id="mo-email"
               className="input"
               value={c.email}
               onChange={(e) => setC({ ...c, email: e.target.value })}
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="label">Address</label>
+            <label className="label" htmlFor="mo-address">Address</label>
             <input
+              id="mo-address"
               className="input"
               value={c.addressLine}
               onChange={(e) => setC({ ...c, addressLine: e.target.value })}
             />
           </div>
           <div>
-            <label className="label">Area</label>
+            <label className="label" htmlFor="mo-area">Area</label>
             <input
+              id="mo-area"
               className="input"
               value={c.area}
               onChange={(e) => setC({ ...c, area: e.target.value })}
             />
           </div>
           <div>
-            <label className="label">City</label>
+            <label className="label" htmlFor="mo-city">City</label>
             <input
+              id="mo-city"
               className="input"
               value={c.city}
               onChange={(e) => setC({ ...c, city: e.target.value })}
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="label">Note</label>
+            <label className="label" htmlFor="mo-note">Note</label>
             <input
+              id="mo-note"
               className="input"
               value={c.note}
               onChange={(e) => setC({ ...c, note: e.target.value })}
@@ -281,8 +294,9 @@ export function ManualOrderForm({ products }: { products: PickProduct[] }) {
       {/* Summary / settings */}
       <aside className="card h-max space-y-4 p-5">
         <div>
-          <label className="label">Payment method</label>
+          <label className="label" htmlFor="mo-pay-method">Payment method</label>
           <select
+            id="mo-pay-method"
             className="select text-sm"
             value={paymentMethod}
             onChange={(e) =>
@@ -295,8 +309,9 @@ export function ManualOrderForm({ products }: { products: PickProduct[] }) {
           </select>
         </div>
         <div>
-          <label className="label">Payment status</label>
+          <label className="label" htmlFor="mo-pay-status">Payment status</label>
           <select
+            id="mo-pay-status"
             className="select text-sm"
             value={paymentStatus}
             onChange={(e) =>
@@ -309,8 +324,9 @@ export function ManualOrderForm({ products }: { products: PickProduct[] }) {
           </select>
         </div>
         <div>
-          <label className="label">Order status</label>
+          <label className="label" htmlFor="mo-order-status">Order status</label>
           <select
+            id="mo-order-status"
             className="select text-sm"
             value={status}
             onChange={(e) => setStatus(e.target.value as typeof status)}
@@ -325,8 +341,9 @@ export function ManualOrderForm({ products }: { products: PickProduct[] }) {
           </select>
         </div>
         <div>
-          <label className="label">Shipping ৳ (blank = auto)</label>
+          <label className="label" htmlFor="mo-shipping">Shipping ৳ (blank = auto)</label>
           <input
+            id="mo-shipping"
             className="input text-sm"
             inputMode="numeric"
             value={shippingOverride}

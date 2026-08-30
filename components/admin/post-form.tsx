@@ -99,8 +99,9 @@ export function PostForm({ initial }: { initial?: Partial<PostFormValues> }) {
     >
       <div className="card grid gap-4 p-5">
         <div>
-          <label className="label">Title</label>
+          <label className="label" htmlFor="pf-title">Title</label>
           <input
+            id="pf-title"
             className="input"
             value={v.title}
             onChange={(e) => set("title", e.target.value)}
@@ -111,8 +112,9 @@ export function PostForm({ initial }: { initial?: Partial<PostFormValues> }) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="label">Slug (optional)</label>
+            <label className="label" htmlFor="pf-slug">Slug (optional)</label>
             <input
+              id="pf-slug"
               className="input"
               placeholder="auto from title"
               value={v.slug}
@@ -121,8 +123,9 @@ export function PostForm({ initial }: { initial?: Partial<PostFormValues> }) {
             <Err e={errors.slug} />
           </div>
           <div>
-            <label className="label">Category</label>
+            <label className="label" htmlFor="pf-category">Category</label>
             <input
+              id="pf-category"
               className="input"
               placeholder="Brewing, Origin, Dispatch…"
               value={v.category}
@@ -134,8 +137,9 @@ export function PostForm({ initial }: { initial?: Partial<PostFormValues> }) {
         </div>
 
         <div>
-          <label className="label">Excerpt</label>
+          <label className="label" htmlFor="pf-excerpt">Excerpt</label>
           <textarea
+            id="pf-excerpt"
             className="textarea"
             value={v.excerpt}
             onChange={(e) => set("excerpt", e.target.value)}
@@ -148,8 +152,9 @@ export function PostForm({ initial }: { initial?: Partial<PostFormValues> }) {
         </div>
 
         <div>
-          <label className="label">Status</label>
+          <label className="label" htmlFor="pf-status">Status</label>
           <select
+            id="pf-status"
             className="select"
             value={v.status}
             onChange={(e) =>
@@ -174,11 +179,12 @@ export function PostForm({ initial }: { initial?: Partial<PostFormValues> }) {
       </div>
 
       <div className="card p-5">
-        <label className="label">Body</label>
+        <span className="label">Body</span>
         <p className="mb-3 text-[11px] text-muted-2">
           One paragraph per box. Use the arrows to reorder.
         </p>
         <div className="space-y-3">
+          {/* index key ok: textareas are controlled from state, no internal state */}
           {v.body.map((para, i) => (
             <div key={i} className="flex gap-2">
               <textarea
@@ -186,6 +192,7 @@ export function PostForm({ initial }: { initial?: Partial<PostFormValues> }) {
                 rows={3}
                 value={para}
                 placeholder={`Paragraph ${i + 1}`}
+                aria-label={`Paragraph ${i + 1}`}
                 onChange={(e) => setParagraph(i, e.target.value)}
               />
               <div className="flex flex-col gap-1">

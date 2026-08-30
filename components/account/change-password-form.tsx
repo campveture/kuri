@@ -39,8 +39,9 @@ export function ChangePasswordForm() {
     <form ref={formRef} action={action} className="card p-5">
       <h3 className="label">Change password</h3>
 
-      <label className="label mt-2">Current password</label>
+      <label className="label mt-2" htmlFor="cp-current">Current password</label>
       <input
+        id="cp-current"
         name="currentPassword"
         type="password"
         autoComplete="current-password"
@@ -48,8 +49,9 @@ export function ChangePasswordForm() {
         required
       />
 
-      <label className="label mt-3">New password</label>
+      <label className="label mt-3" htmlFor="cp-new">New password</label>
       <input
+        id="cp-new"
         name="newPassword"
         type="password"
         autoComplete="new-password"
@@ -58,8 +60,9 @@ export function ChangePasswordForm() {
         required
       />
 
-      <label className="label mt-3">Confirm new password</label>
+      <label className="label mt-3" htmlFor="cp-confirm">Confirm new password</label>
       <input
+        id="cp-confirm"
         name="confirmPassword"
         type="password"
         autoComplete="new-password"

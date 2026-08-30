@@ -126,8 +126,9 @@ export function PosForm({
       {/* left: catalogue */}
       <div className="space-y-4">
         <div>
-          <label className="label">Store</label>
+          <label className="label" htmlFor="pos-store">Store</label>
           <select
+            id="pos-store"
             className="select"
             value={locationId}
             onChange={(e) => setLocationId(e.target.value)}
@@ -142,8 +143,9 @@ export function PosForm({
         </div>
 
         <div className="relative">
-          <label className="label">Add product</label>
+          <label className="label" htmlFor="pos-search">Add product</label>
           <input
+            id="pos-search"
             className="input"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -191,6 +193,7 @@ export function PosForm({
                   </td>
                 </tr>
               )}
+              {/* index key ok: row inputs are controlled from state, no internal state */}
               {lines.map((l, i) => {
                 const p = products.find((x) => x.id === l.productId)!;
                 const avail = stockFor(p, l.size);
@@ -199,6 +202,7 @@ export function PosForm({
                     <td className="p-2">{l.name}</td>
                     <td className="p-2">
                       <select
+                        aria-label={`Weight for ${l.name}`}
                         className="select w-auto py-1 text-xs"
                         value={l.size}
                         onChange={(e) => changeSize(i, e.target.value)}
@@ -214,6 +218,7 @@ export function PosForm({
                       <input
                         type="number"
                         min={1}
+                        aria-label={`Quantity for ${l.name}`}
                         className="input w-16 py-1 text-xs"
                         value={l.quantity}
                         onChange={(e) =>
@@ -234,6 +239,7 @@ export function PosForm({
                     <td className="p-2 text-right">
                       <button
                         type="button"
+                        aria-label={`Remove ${l.name}`}
                         onClick={() => setLines((ls) => ls.filter((_, k) => k !== i))}
                         className="text-muted-2 hover:text-negative"
                       >
@@ -252,8 +258,9 @@ export function PosForm({
       <div className="card space-y-4 p-5">
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <label className="label">Customer name</label>
+            <label className="label" htmlFor="pos-cust-name">Customer name</label>
             <input
+              id="pos-cust-name"
               className="input"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
@@ -261,8 +268,9 @@ export function PosForm({
             />
           </div>
           <div>
-            <label className="label">Phone</label>
+            <label className="label" htmlFor="pos-cust-phone">Phone</label>
             <input
+              id="pos-cust-phone"
               className="input"
               value={customerPhone}
               onChange={(e) => setCustomerPhone(e.target.value)}
@@ -272,8 +280,9 @@ export function PosForm({
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <label className="label">Discount (৳)</label>
+            <label className="label" htmlFor="pos-discount">Discount (৳)</label>
             <input
+              id="pos-discount"
               className="input"
               inputMode="numeric"
               value={discount}
@@ -281,8 +290,9 @@ export function PosForm({
             />
           </div>
           <div>
-            <label className="label">Payment</label>
+            <label className="label" htmlFor="pos-payment">Payment</label>
             <select
+              id="pos-payment"
               className="select"
               value={payment}
               onChange={(e) => setPayment(e.target.value as typeof payment)}
@@ -295,8 +305,9 @@ export function PosForm({
           </div>
         </div>
         <div>
-          <label className="label">Note</label>
+          <label className="label" htmlFor="pos-note">Note</label>
           <input
+            id="pos-note"
             className="input"
             value={note}
             onChange={(e) => setNote(e.target.value)}

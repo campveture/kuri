@@ -60,8 +60,9 @@ export function ExpenseManager({
     <div className="space-y-6">
       <div className="card grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-5">
         <div>
-          <label className="label">Category</label>
+          <label className="label" htmlFor="exp-category">Category</label>
           <select
+            id="exp-category"
             className="select"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
@@ -74,8 +75,9 @@ export function ExpenseManager({
           </select>
         </div>
         <div>
-          <label className="label">Amount (৳)</label>
+          <label className="label" htmlFor="exp-amount">Amount (৳)</label>
           <input
+            id="exp-amount"
             className="input"
             inputMode="numeric"
             value={amount}
@@ -83,8 +85,9 @@ export function ExpenseManager({
           />
         </div>
         <div>
-          <label className="label">Store</label>
+          <label className="label" htmlFor="exp-store">Store</label>
           <select
+            id="exp-store"
             className="select"
             value={locationId}
             onChange={(e) => setLocationId(e.target.value)}
@@ -98,8 +101,9 @@ export function ExpenseManager({
           </select>
         </div>
         <div>
-          <label className="label">Date</label>
+          <label className="label" htmlFor="exp-date">Date</label>
           <input
+            id="exp-date"
             type="date"
             className="input"
             value={incurredAt}
@@ -108,11 +112,13 @@ export function ExpenseManager({
         </div>
         <div className="flex items-end">
           <button className="btn btn-primary w-full" onClick={add} disabled={pending}>
-            Add
+            {pending ? "Saving…" : "Add"}
           </button>
         </div>
         <div className="sm:col-span-2 lg:col-span-5">
+          <label className="sr-only" htmlFor="exp-note">Note</label>
           <input
+            id="exp-note"
             className="input"
             placeholder="Note (optional)"
             value={note}
@@ -152,13 +158,16 @@ export function ExpenseManager({
                 <td className="p-3 text-right">{formatBDT(e.amount)}</td>
                 <td className="p-3 text-right">
                   <button
-                    onClick={() =>
+                    type="button"
+                    aria-label={`Delete ${e.category.toLowerCase()} expense of ${formatBDT(e.amount)}`}
+                    onClick={() => {
+                      if (!window.confirm("Delete this expense? This can't be undone.")) return;
                       start(async () => {
                         const r = await deleteExpense(e.id);
                         if (r.ok) router.refresh();
                         else toast(r.error, "error");
-                      })
-                    }
+                      });
+                    }}
                     className="text-xs text-muted-2 hover:text-negative"
                   >
                     ✕

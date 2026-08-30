@@ -88,6 +88,7 @@ export function ContentForm({
           {group.fields.map((field) => (
             <FieldInput
               key={field.path}
+              id={`cf-${field.path}`}
               field={field}
               value={read(field.path)}
               onChange={(v) => write(field.path, v)}
@@ -104,6 +105,7 @@ export function ContentForm({
             {items.length === 0 && (
               <p className="text-xs text-muted-2">No items.</p>
             )}
+            {/* index key ok: rows are fully controlled from state, no internal state */}
             {items.map((_, i) => (
               <div key={i} className="border border-line p-4">
                 <div className="mb-3 flex items-center justify-between">
@@ -144,6 +146,7 @@ export function ContentForm({
                     return (
                       <FieldInput
                         key={itemPath}
+                        id={`cf-${itemPath}`}
                         field={field}
                         value={read(itemPath)}
                         onChange={(v) => write(itemPath, v)}
@@ -178,10 +181,12 @@ export function ContentForm({
 }
 
 function FieldInput({
+  id,
   field,
   value,
   onChange,
 }: {
+  id: string;
   field: Field;
   value: unknown;
   onChange: (value: unknown) => void;
@@ -204,15 +209,17 @@ function FieldInput({
 
   return (
     <div>
-      <label className="label">{field.label}</label>
+      <label className="label" htmlFor={id}>{field.label}</label>
       {field.kind === "textarea" ? (
         <textarea
+          id={id}
           className="textarea"
           value={str}
           onChange={(e) => onChange(e.target.value)}
         />
       ) : (
         <input
+          id={id}
           className="input"
           value={str}
           onChange={(e) => onChange(e.target.value)}

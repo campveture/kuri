@@ -24,8 +24,9 @@ export function NewPageForm() {
     <div className="max-w-2xl space-y-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="label">Page title</label>
+          <label className="label" htmlFor="np-title">Page title</label>
           <input
+            id="np-title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Eid Drop 2026"
@@ -33,10 +34,11 @@ export function NewPageForm() {
           />
         </div>
         <div>
-          <label className="label">URL slug</label>
+          <label className="label" htmlFor="np-slug">URL slug</label>
           <div className="flex items-center gap-1">
             <span className="text-sm text-muted-2">/</span>
             <input
+              id="np-slug"
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
               placeholder="eid-drop"
@@ -47,7 +49,7 @@ export function NewPageForm() {
       </div>
 
       <div>
-        <label className="label">Start from a template</label>
+        <span className="label">Start from a template</span>
         <div className="grid gap-3 sm:grid-cols-2">
           {PAGE_TEMPLATES.map((t) => (
             <button

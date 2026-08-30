@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
 import { createUser } from "@/app/admin/actions";
 import { toast } from "@/components/ui/toaster";
@@ -14,6 +15,15 @@ type State =
 function Err({ e }: { e?: string[] }) {
   if (!e?.length) return null;
   return <p className="mt-1 text-xs text-negative">{e[0]}</p>;
+}
+
+function SubmitBtn() {
+  const { pending } = useFormStatus();
+  return (
+    <button className="btn btn-primary" disabled={pending}>
+      {pending ? "Creating…" : "Create user"}
+    </button>
+  );
 }
 
 export function UserCreateForm() {
@@ -37,13 +47,14 @@ export function UserCreateForm() {
     <form ref={formRef} action={action} className="max-w-lg space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="label">Full name</label>
-          <input name="name" className="input" required />
+          <label className="label" htmlFor="uc-name">Full name</label>
+          <input id="uc-name" name="name" className="input" required />
           <Err e={fe?.name} />
         </div>
         <div>
-          <label className="label">Phone (optional)</label>
+          <label className="label" htmlFor="uc-phone">Phone (optional)</label>
           <input
+            id="uc-phone"
             name="phone"
             inputMode="tel"
             className="input"
@@ -54,8 +65,9 @@ export function UserCreateForm() {
       </div>
 
       <div>
-        <label className="label">Email</label>
+        <label className="label" htmlFor="uc-email">Email</label>
         <input
+          id="uc-email"
           name="email"
           type="email"
           autoComplete="off"
@@ -66,9 +78,10 @@ export function UserCreateForm() {
       </div>
 
       <div>
-        <label className="label">Temporary password</label>
+        <label className="label" htmlFor="uc-password">Temporary password</label>
         <div className="flex gap-2">
           <input
+            id="uc-password"
             name="password"
             type="text"
             autoComplete="off"
@@ -101,8 +114,9 @@ export function UserCreateForm() {
       </div>
 
       <div>
-        <label className="label">Role</label>
+        <label className="label" htmlFor="uc-role">Role</label>
         <select
+          id="uc-role"
           name="role"
           value={role}
           onChange={(e) => setRole(e.target.value as "CUSTOMER" | "ADMIN")}
@@ -125,7 +139,7 @@ export function UserCreateForm() {
         </p>
       )}
 
-      <button className="btn btn-primary">Create user</button>
+      <SubmitBtn />
     </form>
   );
 }

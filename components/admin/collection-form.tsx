@@ -96,8 +96,9 @@ export function CollectionForm({
     >
       <div className="card grid gap-4 p-5">
         <div>
-          <label className="label">Name</label>
+          <label className="label" htmlFor="coll-name">Name</label>
           <input
+            id="coll-name"
             className="input"
             value={v.name}
             onChange={(e) => set("name", e.target.value)}
@@ -109,8 +110,9 @@ export function CollectionForm({
           )}
         </div>
         <div>
-          <label className="label">Slug (optional)</label>
+          <label className="label" htmlFor="coll-slug">Slug (optional)</label>
           <input
+            id="coll-slug"
             className="input"
             placeholder="auto from name"
             value={v.slug}
@@ -118,8 +120,9 @@ export function CollectionForm({
           />
         </div>
         <div>
-          <label className="label">Description</label>
+          <label className="label" htmlFor="coll-description">Description</label>
           <textarea
+            id="coll-description"
             className="textarea min-h-20"
             value={v.description}
             onChange={(e) => set("description", e.target.value)}
@@ -146,10 +149,11 @@ export function CollectionForm({
 
       <div className="card p-5">
         <div className="flex items-center justify-between">
-          <label className="label">Teas ({v.productIds.length})</label>
+          <p className="label">Teas ({v.productIds.length})</p>
           <input
             className="input w-48 py-1.5 text-xs"
             placeholder="Filter…"
+            aria-label="Filter teas"
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />

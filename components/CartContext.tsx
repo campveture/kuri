@@ -64,23 +64,38 @@ export function lineKey(l: {
   return `${l.handle}::${l.size}::${l.purchaseOption}`;
 }
 
+/** Per-line cap — matches `checkoutSchema` item quantity max. */
+const MAX_QTY = 20;
+const clampQty = (n: number, maxStock: number) =>
+  Math.max(1, Math.min(n, maxStock, MAX_QTY));
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [ready, setReady] = useState(false);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) setLines(parsed.filter(isLine));
-      }
+      const parsed = raw ? JSON.parse(raw) : [];
+      setLines(Array.isArray(parsed) ? parsed.filter(isLine) : []);
     } catch {
-      /* ignore */
+      setLines([]);
     }
-    setReady(true);
   }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load();
+     
+    setReady(true);
+    // keep two open tabs in sync
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY) load();
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [load]);
 
   useEffect(() => {
     if (!ready) return;
@@ -98,10 +113,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (existing) {
         return prev.map((l) =>
           lineKey(l) === key
-            ? {
-                ...l,
-                quantity: Math.min(l.maxStock, l.quantity + args.quantity),
-              }
+            ? { ...l, quantity: clampQty(l.quantity + args.quantity, l.maxStock) }
             : l,
         );
       }
@@ -116,7 +128,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           purchaseOption: args.purchaseOption,
           frequencyWeeks: args.frequencyWeeks ?? 4,
           unitPrice: args.unitPrice,
-          quantity: Math.min(args.maxStock, args.quantity),
+          quantity: clampQty(args.quantity, args.maxStock),
           maxStock: args.maxStock,
         },
       ];
@@ -129,9 +141,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       quantity <= 0
         ? prev.filter((l) => lineKey(l) !== key)
         : prev.map((l) =>
-            lineKey(l) === key
-              ? { ...l, quantity: Math.min(l.maxStock, quantity) }
-              : l,
+            lineKey(l) === key ? { ...l, quantity: clampQty(quantity, l.maxStock) } : l,
           ),
     );
   }, []);
@@ -169,12 +179,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
 }
 
 function isLine(x: unknown): x is CartLine {
+  if (!x || typeof x !== "object") return false;
+  const l = x as Record<string, unknown>;
   return (
-    !!x &&
-    typeof x === "object" &&
-    typeof (x as CartLine).handle === "string" &&
-    typeof (x as CartLine).size === "string" &&
-    typeof (x as CartLine).unitPrice === "number"
+    typeof l.productId === "string" &&
+    typeof l.handle === "string" &&
+    typeof l.name === "string" &&
+    typeof l.size === "string" &&
+    typeof l.accent === "string" &&
+    (l.purchaseOption === "one-time" || l.purchaseOption === "subscribe") &&
+    typeof l.frequencyWeeks === "number" &&
+    Number.isFinite(l.unitPrice) &&
+    Number.isFinite(l.quantity) &&
+    (l.quantity as number) > 0 &&
+    Number.isFinite(l.maxStock)
   );
 }
 

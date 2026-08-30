@@ -32,6 +32,9 @@ export function AddToCartForm({ product }: { product: AddToCartProduct }) {
   const [quantity, setQuantity] = useState(1);
 
   const variant = product.variants.find((v) => v.size === size);
+  // Never show a quantity above the selected weight's stock.
+  const maxQty = Math.min(variant?.stock ?? 1, 20);
+  const qty = Math.max(1, Math.min(quantity, maxQty || 1));
   const canSubscribe = product.subscribePrice != null;
   const unitPrice =
     option === "subscribe" && product.subscribePrice != null
@@ -120,18 +123,17 @@ export function AddToCartForm({ product }: { product: AddToCartProduct }) {
           <button
             type="button"
             className="px-4 py-3.5"
-            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+            onClick={() => setQuantity(Math.max(1, qty - 1))}
             aria-label="Decrease quantity"
           >
             &minus;
           </button>
-          <span className="px-2.5 py-3.5 text-sm font-semibold">{quantity}</span>
+          <span className="px-2.5 py-3.5 text-sm font-semibold">{qty}</span>
           <button
             type="button"
-            className="px-4 py-3.5"
-            onClick={() =>
-              setQuantity((q) => Math.min(variant?.stock ?? 1, q + 1))
-            }
+            className="px-4 py-3.5 disabled:opacity-30"
+            disabled={qty >= maxQty}
+            onClick={() => setQuantity(Math.min(maxQty, qty + 1))}
             aria-label="Increase quantity"
           >
             +
@@ -152,7 +154,7 @@ export function AddToCartForm({ product }: { product: AddToCartProduct }) {
               purchaseOption: option,
               frequencyWeeks: frequency,
               unitPrice,
-              quantity,
+              quantity: qty,
               maxStock: variant.stock,
             });
           }}

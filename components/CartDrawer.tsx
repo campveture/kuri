@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useCart, lineKey } from "@/components/CartContext";
 import { CloseIcon } from "@/components/Icons";
+import { useOverlay } from "@/components/useOverlay";
 import { formatBDT } from "@/lib/utils";
 
 export function CartDrawer() {
   const { lines, isOpen, closeCart, updateQuantity, removeItem, totalPrice } = useCart();
+  useOverlay(isOpen, closeCart);
 
   return (
     <>
@@ -21,7 +23,8 @@ export function CartDrawer() {
         className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-[420px] flex-col bg-cream shadow-2xl transition-transform ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
-        aria-hidden={!isOpen}
+        aria-label="Shopping cart"
+        inert={!isOpen}
       >
         <div className="flex items-center justify-between border-b border-line px-7 py-6">
           <h2 className="font-serif text-xl font-medium">Your Cart</h2>

@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
-import { useActionState } from "react";
+import { useEffect, useState, useTransition, useActionState } from "react";
 import { useRouter } from "next/navigation";
 import { saveCategory, deleteCategory } from "@/app/admin/actions";
 import { toast } from "@/components/ui/toaster";
@@ -27,8 +26,11 @@ export function CategoryManager({ categories }: { categories: Cat[] }) {
   useEffect(() => {
     if (state?.ok) {
       toast("Category saved", "success");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEditing(null);
       router.refresh();
+    } else if (state?.error) {
+      toast(state.error, "error");
     }
   }, [state, router]);
 
@@ -68,7 +70,8 @@ export function CategoryManager({ categories }: { categories: Cat[] }) {
                   <button
                     className="text-negative hover:underline disabled:opacity-40"
                     disabled={pending}
-                    onClick={() =>
+                    onClick={() => {
+                      if (!confirm(`Delete "${c.name}"? Teas in it are not deleted.`)) return;
                       start(async () => {
                         const res = await deleteCategory(c.id);
                         if (res.error) toast(res.error, "error");
@@ -76,8 +79,8 @@ export function CategoryManager({ categories }: { categories: Cat[] }) {
                           toast("Category deleted", "success");
                           router.refresh();
                         }
-                      })
-                    }
+                      });
+                    }}
                   >
                     Delete
                   </button>

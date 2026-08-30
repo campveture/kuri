@@ -27,12 +27,12 @@ export default function PhotoCreditsPage() {
               <div className="text-sm font-semibold">{credit.title}</div>
               <div className="mt-1 text-xs text-muted-2">
                 Photo by {credit.photographer}, licensed{" "}
-                <a href={credit.licenseUrl} className="underline">
+                <a href={credit.licenseUrl} target="_blank" rel="noopener noreferrer" className="underline">
                   {credit.license}
                 </a>
               </div>
             </div>
-            <a href={credit.sourceUrl} className="text-xs font-semibold underline">
+            <a href={credit.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold underline">
               View source on Wikimedia Commons
             </a>
           </div>

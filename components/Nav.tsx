@@ -3,12 +3,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useCart } from "@/components/CartContext";
-import { AccountIcon, BagIcon, ChevronDownIcon, MenuIcon, SearchIcon } from "@/components/Icons";
+import { AccountIcon, BagIcon, MenuIcon, SearchIcon } from "@/components/Icons";
 import { SearchOverlay } from "@/components/SearchOverlay";
 import { MobileMenu } from "@/components/MobileMenu";
 
 export function Nav() {
-  const { totalCount, openCart } = useCart();
+  const { totalCount, openCart, ready } = useCart();
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const ticking = useRef(false);
@@ -39,12 +39,13 @@ export function Nav() {
           <Link href="/" className="font-serif text-lg font-semibold tracking-[0.14em] transition-colors duration-300 hover:text-gold-deep md:text-xl">
             KURI
           </Link>
-          <div className="hidden items-center gap-7 md:flex lg:gap-8">
-            <Link href="/shop" className="nav-link-wrap"><span>Shop</span><ChevronDownIcon size={9} /></Link>
+          <div className="hidden items-center gap-6 md:flex lg:gap-7">
+            <Link href="/shop" className="nav-link-wrap"><span>Shop</span></Link>
             <Link href="/our-origin" className="nav-link-wrap"><span>Our Origin</span></Link>
             <Link href="/our-story" className="nav-link-wrap"><span>Our Story</span></Link>
             <Link href="/subscriptions" className="nav-link-wrap"><span>Subscriptions</span></Link>
             <Link href="/journal" className="nav-link-wrap"><span>Journal</span></Link>
+            <Link href="/contact" className="nav-link-wrap"><span>Contact</span></Link>
           </div>
         </div>
         <div className="flex items-center gap-1 sm:gap-2">
@@ -56,7 +57,7 @@ export function Nav() {
           </Link>
           <button type="button" aria-label="Open cart" onClick={openCart} className="nav-icon-btn relative">
             <BagIcon size={18} />
-            {totalCount > 0 && (
+            {ready && totalCount > 0 && (
               <span className="absolute -top-1 -right-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-charcoal px-1 text-[10px] font-semibold text-cream">
                 {totalCount}
               </span>

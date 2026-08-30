@@ -3,13 +3,29 @@ import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { PostRowActions } from "@/components/admin/post-row-actions";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Journal" };
 
-export default async function AdminJournalPage() {
-  const posts = await prisma.post.findMany({
-    orderBy: [{ createdAt: "desc" }],
-  });
+export default async function AdminJournalPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  await requireAdmin();
+  const sp = await searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const PAGE_SIZE = 50;
+
+  const [posts, total] = await Promise.all([
+    prisma.post.findMany({
+      orderBy: [{ createdAt: "desc" }],
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.post.count(),
+  ]);
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <div className="space-y-6">
@@ -67,6 +83,32 @@ export default async function AdminJournalPage() {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <nav className="flex items-center justify-between text-xs text-muted-2">
+          <span>
+            Page {page} of {totalPages}
+          </span>
+          <span className="flex gap-2">
+            {page > 1 && (
+              <Link
+                href={`/admin/journal?page=${page - 1}`}
+                className="btn btn-outline btn-sm"
+              >
+                Prev
+              </Link>
+            )}
+            {page < totalPages && (
+              <Link
+                href={`/admin/journal?page=${page + 1}`}
+                className="btn btn-outline btn-sm"
+              >
+                Next
+              </Link>
+            )}
+          </span>
+        </nav>
+      )}
     </div>
   );
 }

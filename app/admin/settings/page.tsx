@@ -3,10 +3,12 @@ import { getCollections } from "@/lib/queries";
 import { getCurrentUser } from "@/lib/auth";
 import { SettingsForm } from "@/components/admin/settings-form";
 import { ChangePasswordForm } from "@/components/account/change-password-form";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Settings" };
 
 export default async function AdminSettingsPage() {
+  await requireAdmin();
   const [s, collections, user] = await Promise.all([
     getSettings(),
     getCollections(),

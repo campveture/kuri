@@ -27,16 +27,25 @@ export function HeroParticles({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // Respect reduced-motion — skip the animation entirely.
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+
     let mounted = true;
     const width = canvas.clientWidth || 1440;
     const height = canvas.clientHeight || 640;
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: true,
-      premultipliedAlpha: false,
-    });
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: true,
+        premultipliedAlpha: false,
+      });
+    } catch {
+      // No WebGL (old device, hardened browser) — the hero works without the effect.
+      return;
+    }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(width, height, false);
     renderer.setClearColor(0x000000, 0);
@@ -102,12 +111,30 @@ export function HeroParticles({
     }
     window.addEventListener("resize", onResize);
 
+    // Pause the loop while the hero is scrolled out of view.
+    const io =
+      "IntersectionObserver" in window
+        ? new IntersectionObserver(
+            ([e]) => {
+              if (e.isIntersecting && !raf && mounted) animate();
+              if (!e.isIntersecting && raf) {
+                cancelAnimationFrame(raf);
+                raf = 0;
+              }
+            },
+            { threshold: 0 },
+          )
+        : null;
+    io?.observe(canvas);
+
     return () => {
       mounted = false;
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
+      io?.disconnect();
       geometry.dispose();
       material.dispose();
+      renderer.forceContextLoss();
       renderer.dispose();
     };
   }, [color, count, opacity, size]);

@@ -15,6 +15,8 @@ export type CheckoutState = {
   orderNumber?: string;
   error?: string;
   fieldErrors?: Record<string, string[]>;
+  /** Set when the server total differs from what the customer was shown. */
+  priceChanged?: { subtotal: number; shipping: number; discount: number; total: number };
 };
 
 type RawItem = {
@@ -37,6 +39,7 @@ type RawInput = {
   transactionId: string;
   senderNumber: string;
   discountCode?: string;
+  expectedTotal?: number;
   items: RawItem[];
 };
 
@@ -102,6 +105,13 @@ export async function placeOrder(input: RawInput): Promise<CheckoutState> {
     if (variant.stock < item.quantity)
       return { error: `${product.name} (${item.size}) — only ${variant.stock} left in stock.` };
 
+    // If the customer chose "subscribe" but the product no longer offers it,
+    // don't silently re-price to the one-time price — surface it.
+    if (item.purchaseOption === "subscribe" && product.subscribePrice == null) {
+      return {
+        error: `${product.name} is no longer available as a subscription. Remove it or switch to a one-time purchase.`,
+      };
+    }
     const isSub = item.purchaseOption === "subscribe" && product.subscribePrice != null;
     lineItems.push({
       productId: product.id,
@@ -124,16 +134,28 @@ export async function placeOrder(input: RawInput): Promise<CheckoutState> {
   let discountId: string | null = null;
   let discountCode: string | null = null;
   let discountAmount = 0;
+  let discountMaxUses: number | null = null;
   if (data.discountCode && data.discountCode.trim()) {
     const dc = await checkDiscount(data.discountCode, subtotal);
     if (!dc.ok) return { error: dc.error, fieldErrors: { discountCode: [dc.error] } };
     discountId = dc.discount.id;
     discountCode = dc.discount.code;
     discountAmount = dc.amount;
+    discountMaxUses = dc.discount.maxUses;
   }
 
   const total = Math.max(0, subtotal - discountAmount) + shipping;
   const subLines = lineItems.filter((li) => li.purchaseOption === "subscribe");
+
+  // Guard against a price change between add-to-cart and checkout: if the total
+  // we computed doesn't match what the UI showed, bounce back so the customer
+  // can review the corrected amount instead of being charged silently.
+  if (data.expectedTotal != null && data.expectedTotal !== total) {
+    return {
+      error: "Some prices changed while you were shopping — please review your updated total.",
+      priceChanged: { subtotal, shipping, discount: discountAmount, total },
+    };
+  }
 
   const createOrder = (orderNo: string) =>
     prisma.$transaction(async (tx) => {
@@ -146,11 +168,20 @@ export async function placeOrder(input: RawInput): Promise<CheckoutState> {
       }
 
       if (discountId) {
-        const d = await tx.discount.findUnique({ where: { id: discountId } });
-        if (!d || !d.active || (d.maxUses != null && d.usedCount >= d.maxUses)) {
+        // Consume one use atomically — the conditional `usedCount: { lt: cap }`
+        // + `increment` makes maxUses race-safe (same pattern as the stock
+        // decrement above). `count === 0` = the code was just used up.
+        const consumed = await tx.discount.updateMany({
+          where: {
+            id: discountId,
+            active: true,
+            ...(discountMaxUses != null ? { usedCount: { lt: discountMaxUses } } : {}),
+          },
+          data: { usedCount: { increment: 1 } },
+        });
+        if (consumed.count === 0) {
           throw new Error("That discount code was just used up.");
         }
-        await tx.discount.update({ where: { id: discountId }, data: { usedCount: { increment: 1 } } });
       }
 
       const order = await tx.order.create({
@@ -202,6 +233,9 @@ export async function placeOrder(input: RawInput): Promise<CheckoutState> {
       });
 
       // Open a Subscription for each subscribe line (admin fulfils manually).
+      // bKash/Nagad orders start PAUSED until the admin verifies payment; COD
+      // orders start ACTIVE.
+      const subStatus = data.paymentMethod === "COD" ? "ACTIVE" : "PAUSED";
       for (const li of subLines) {
         const nextShipAt = new Date();
         nextShipAt.setDate(nextShipAt.getDate() + li.frequencyWeeks * 7);
@@ -220,7 +254,7 @@ export async function placeOrder(input: RawInput): Promise<CheckoutState> {
             frequencyWeeks: li.frequencyWeeks,
             priceAtSignup: li.subscribeUnitPrice,
             nextShipAt,
-            status: "ACTIVE",
+            status: subStatus,
             lastOrderId: order.id,
           },
         });

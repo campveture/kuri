@@ -19,7 +19,11 @@ export function ProductRowActions({ id, active }: { id: string; active: boolean 
         disabled={pending}
         onClick={() =>
           start(async () => {
-            await toggleProductActive(id, !active);
+            const res = await toggleProductActive(id, !active);
+            if ("error" in res && res.error) {
+              toast(String(res.error), "error");
+              return;
+            }
             toast(active ? "Hidden from store" : "Now live", "success");
             router.refresh();
           })

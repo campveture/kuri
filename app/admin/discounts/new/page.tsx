@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { DiscountForm } from "@/components/admin/discount-form";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "New discount" };
 
-export default function NewDiscountPage() {
+export default async function NewDiscountPage() {
+  await requireAdmin();
   return (
     <div className="space-y-6">
       <Link

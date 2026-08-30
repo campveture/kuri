@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { CollectionRowActions } from "@/components/admin/collection-row-actions";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Collections" };
 
 export default async function AdminCollectionsPage() {
+  await requireAdmin();
   const collections = await prisma.collection.findMany({
     orderBy: [{ position: "asc" }, { createdAt: "asc" }],
     include: { _count: { select: { products: true } } },

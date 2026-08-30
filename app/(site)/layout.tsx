@@ -1,7 +1,6 @@
 import { CartProvider } from "@/components/CartContext";
 import { SiteChrome } from "@/components/SiteChrome";
 import { CartDrawer } from "@/components/CartDrawer";
-import { Toaster } from "@/components/ui/toaster";
 import { getSettings } from "@/lib/settings";
 
 export default async function SiteLayout({ children }: LayoutProps<"/">) {
@@ -10,7 +9,6 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
     <CartProvider>
       <SiteChrome announcement={settings.announcement}>{children}</SiteChrome>
       <CartDrawer />
-      <Toaster />
     </CartProvider>
   );
 }

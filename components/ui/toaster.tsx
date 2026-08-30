@@ -33,10 +33,15 @@ export function Toaster() {
   }, []);
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-4 z-[100] flex flex-col items-center gap-2 px-4">
+    <div
+      className="pointer-events-none fixed inset-x-0 bottom-4 z-[100] flex flex-col items-center gap-2 px-4"
+      role="status"
+      aria-live="polite"
+    >
       {toasts.map((t) => (
         <div
           key={t.id}
+          role={t.kind === "error" ? "alert" : undefined}
           className={cn(
             "pointer-events-auto flex items-center gap-3 border px-4 py-3 text-sm font-medium shadow-lg",
             t.kind === "success" && "border-gold-deep bg-charcoal text-cream",

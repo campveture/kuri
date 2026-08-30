@@ -28,7 +28,11 @@ export function DiscountRowActions({
         disabled={pending}
         onClick={() =>
           start(async () => {
-            await toggleDiscount(id, !active);
+            const res = await toggleDiscount(id, !active);
+            if ("error" in res && res.error) {
+              toast(String(res.error), "error");
+              return;
+            }
             toast(active ? "Disabled" : "Enabled", "success");
             router.refresh();
           })

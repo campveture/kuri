@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { parseBlocks } from "@/lib/blocks";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Landing pages" };
 
 export default async function AdminPagesPage() {
+  await requireAdmin();
   const pages = await prisma.page.findMany({
     orderBy: [{ isHome: "desc" }, { updatedAt: "desc" }],
   });
@@ -36,6 +38,9 @@ export default async function AdminPagesPage() {
             </tr>
           </thead>
           <tbody>
+            {pages.length === 0 && (
+              <tr><td colSpan={5} className="p-4 text-muted-2">No pages yet.</td></tr>
+            )}
             {pages.map((p) => {
               const count = parseBlocks(p.blocks).length;
               return (

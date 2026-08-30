@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CloseIcon, SearchIcon } from "@/components/Icons";
+import { useOverlay } from "@/components/useOverlay";
 import { formatBDT } from "@/lib/utils";
 
 type Item = {
@@ -17,9 +18,11 @@ type Item = {
 export function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [query, setQuery] = useState("");
   const [items, setItems] = useState<Item[]>([]);
+  useOverlay(isOpen, onClose);
 
   useEffect(() => {
     if (!isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setQuery("");
       return;
     }
@@ -30,14 +33,6 @@ export function SearchOverlay({ isOpen, onClose }: { isOpen: boolean; onClose: (
         .catch(() => {});
     }
   }, [isOpen, items.length]);
-
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    if (isOpen) window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isOpen, onClose]);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();

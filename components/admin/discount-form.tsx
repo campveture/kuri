@@ -73,8 +73,9 @@ export function DiscountForm({ initial }: { initial?: Partial<DiscountValues> })
     >
       <div className="card grid gap-4 p-5">
         <div>
-          <label className="label">Code</label>
+          <label className="label" htmlFor="disc-code">Code</label>
           <input
+            id="disc-code"
             className="input uppercase"
             value={v.code}
             onChange={(e) => set("code", e.target.value.toUpperCase())}
@@ -86,8 +87,9 @@ export function DiscountForm({ initial }: { initial?: Partial<DiscountValues> })
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="label">Type</label>
+            <label className="label" htmlFor="disc-type">Type</label>
             <select
+              id="disc-type"
               className="select"
               value={v.type}
               onChange={(e) => set("type", e.target.value as "PERCENT" | "FIXED")}
@@ -97,10 +99,11 @@ export function DiscountForm({ initial }: { initial?: Partial<DiscountValues> })
             </select>
           </div>
           <div>
-            <label className="label">
+            <label className="label" htmlFor="disc-value">
               {v.type === "PERCENT" ? "Percent (1–100)" : "Amount (৳)"}
             </label>
             <input
+              id="disc-value"
               className="input"
               inputMode="numeric"
               value={v.value}
@@ -113,8 +116,9 @@ export function DiscountForm({ initial }: { initial?: Partial<DiscountValues> })
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="label">Minimum order (৳)</label>
+            <label className="label" htmlFor="disc-min-subtotal">Minimum order (৳)</label>
             <input
+              id="disc-min-subtotal"
               className="input"
               inputMode="numeric"
               value={v.minSubtotal}
@@ -122,8 +126,9 @@ export function DiscountForm({ initial }: { initial?: Partial<DiscountValues> })
             />
           </div>
           <div>
-            <label className="label">Max uses (blank = unlimited)</label>
+            <label className="label" htmlFor="disc-max-uses">Max uses (blank = unlimited)</label>
             <input
+              id="disc-max-uses"
               className="input"
               inputMode="numeric"
               value={v.maxUses}
@@ -134,8 +139,9 @@ export function DiscountForm({ initial }: { initial?: Partial<DiscountValues> })
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="label">Starts (optional)</label>
+            <label className="label" htmlFor="disc-starts-at">Starts (optional)</label>
             <input
+              id="disc-starts-at"
               type="date"
               className="input"
               value={v.startsAt}
@@ -143,8 +149,9 @@ export function DiscountForm({ initial }: { initial?: Partial<DiscountValues> })
             />
           </div>
           <div>
-            <label className="label">Expires (optional)</label>
+            <label className="label" htmlFor="disc-ends-at">Expires (optional)</label>
             <input
+              id="disc-ends-at"
               type="date"
               className="input"
               value={v.endsAt}

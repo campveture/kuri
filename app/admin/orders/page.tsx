@@ -3,6 +3,7 @@ import type { Prisma, OrderStatus, PaymentStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { formatBDT, formatDateTime, cn } from "@/lib/utils";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Orders" };
 
@@ -19,13 +20,24 @@ const STATUS_TABS = [
 export default async function AdminOrdersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; payment?: string; q?: string }>;
+  searchParams: Promise<{
+    status?: string;
+    payment?: string;
+    q?: string;
+    page?: string;
+  }>;
 }) {
+  await requireAdmin();
   const sp = await searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const PAGE_SIZE = 50;
+
+  const STATUSES = ["PENDING", "CONFIRMED", "PACKED", "SHIPPED", "DELIVERED", "CANCELLED"];
+  const PAYMENTS = ["UNPAID", "PENDING_VERIFICATION", "PAID", "REFUNDED"];
 
   const where: Prisma.OrderWhereInput = {};
-  if (sp.status) where.status = sp.status as OrderStatus;
-  if (sp.payment) where.paymentStatus = sp.payment as PaymentStatus;
+  if (sp.status && STATUSES.includes(sp.status)) where.status = sp.status as OrderStatus;
+  if (sp.payment && PAYMENTS.includes(sp.payment)) where.paymentStatus = sp.payment as PaymentStatus;
   if (sp.q) {
     const q = sp.q;
     where.OR = [
@@ -35,16 +47,21 @@ export default async function AdminOrdersPage({
     ];
   }
 
-  const orders = await prisma.order.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-    include: { items: true },
-    take: 100,
-  });
+  const [orders, total] = await Promise.all([
+    prisma.order.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: { items: true },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.order.count({ where }),
+  ]);
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const qs = (patch: Record<string, string>) => {
     const next = new URLSearchParams();
-    for (const [k, v] of Object.entries(sp)) if (v) next.set(k, v);
+    for (const [k, v] of Object.entries(sp)) if (v && k !== "page") next.set(k, v);
     for (const [k, v] of Object.entries(patch)) {
       if (v) next.set(k, v);
       else next.delete(k);
@@ -158,6 +175,32 @@ export default async function AdminOrdersPage({
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <nav className="flex items-center justify-between text-xs text-muted-2">
+          <span>
+            Page {page} of {totalPages}
+          </span>
+          <span className="flex gap-2">
+            {page > 1 && (
+              <Link
+                href={qs({ page: String(page - 1) })}
+                className="btn btn-outline btn-sm"
+              >
+                Prev
+              </Link>
+            )}
+            {page < totalPages && (
+              <Link
+                href={qs({ page: String(page + 1) })}
+                className="btn btn-outline btn-sm"
+              >
+                Next
+              </Link>
+            )}
+          </span>
+        </nav>
+      )}
     </div>
   );
 }

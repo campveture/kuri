@@ -9,6 +9,14 @@ import { slugify, generateSku, randomToken } from "@/lib/utils";
 import { productSchema, categorySchema, adminUserSchema } from "@/lib/validators";
 import { setSettings, SETTING_KEYS } from "@/lib/settings";
 
+/** Revalidate every storefront surface a catalog change can touch. */
+function revalidateStorefront(...slugs: (string | null | undefined)[]) {
+  revalidatePath("/");
+  revalidatePath("/shop");
+  revalidatePath("/collections", "layout");
+  for (const s of slugs) if (s) revalidatePath(`/shop/${s}`);
+}
+
 /* ----------------------------- products ----------------------------- */
 
 type ProductInput = {
@@ -57,6 +65,10 @@ export async function saveProduct(input: ProductInput) {
   });
   let slug = clash ? `${baseSlug}-${randomToken(4)}` : baseSlug;
 
+  const prev = input.id
+    ? await prisma.product.findUnique({ where: { id: input.id }, select: { slug: true } })
+    : null;
+
   const buildData = (slugToUse: string) => ({
     name: d.name,
     slug: slugToUse,
@@ -84,39 +96,26 @@ export async function saveProduct(input: ProductInput) {
   });
 
   async function persist(slugToUse: string): Promise<string> {
-    if (input.id) {
-      await prisma.product.update({
-        where: { id: input.id },
-        data: buildData(slugToUse),
-      });
-      const existing = await prisma.productVariant.findMany({
-        where: { productId: input.id },
-      });
-      await prisma.productVariant.deleteMany({
-        where: {
-          productId: input.id,
-          size: { notIn: d.variants.map((v) => v.size) },
-        },
-      });
-      for (const v of d.variants) {
-        const found = existing.find((e) => e.size === v.size);
-        if (found) {
-          await prisma.productVariant.update({
-            where: { id: found.id },
-            data: { stock: v.stock },
-          });
-        } else {
-          await prisma.productVariant.create({
-            data: {
-              productId: input.id,
-              size: v.size,
-              stock: v.stock,
-              sku: generateSku(v.size),
-            },
-          });
+    const productId = input.id;
+    if (productId) {
+      return prisma.$transaction(async (tx) => {
+        await tx.product.update({ where: { id: productId }, data: buildData(slugToUse) });
+        const existing = await tx.productVariant.findMany({ where: { productId } });
+        await tx.productVariant.deleteMany({
+          where: { productId, size: { notIn: d.variants.map((v) => v.size) } },
+        });
+        for (const v of d.variants) {
+          const found = existing.find((e) => e.size === v.size);
+          if (found) {
+            await tx.productVariant.update({ where: { id: found.id }, data: { stock: v.stock } });
+          } else {
+            await tx.productVariant.create({
+              data: { productId, size: v.size, stock: v.stock, sku: generateSku(v.size) },
+            });
+          }
         }
-      }
-      return input.id;
+        return productId;
+      });
     }
     const created = await prisma.product.create({
       data: {
@@ -147,31 +146,42 @@ export async function saveProduct(input: ProductInput) {
   }
 
   revalidatePath("/admin/products");
-  revalidatePath("/shop");
-  revalidatePath("/");
-  if (productId) revalidatePath(`/shop/${slug}`);
+  revalidateStorefront(slug, prev?.slug);
   return { ok: true, id: productId };
 }
 
 export async function toggleProductActive(id: string, active: boolean) {
   await requireAdmin();
-  await prisma.product.update({ where: { id }, data: { active } });
+  const p = await prisma.product.update({ where: { id }, data: { active }, select: { slug: true } });
   revalidatePath("/admin/products");
-  revalidatePath("/shop");
+  revalidateStorefront(p.slug);
   return { ok: true };
 }
 
 export async function deleteProduct(id: string) {
   await requireAdmin();
-  const orderCount = await prisma.orderItem.count({ where: { productId: id } });
-  if (orderCount > 0) {
+  const [orderCount, subCount, product] = await Promise.all([
+    prisma.orderItem.count({ where: { productId: id } }),
+    prisma.subscription.count({ where: { productId: id } }),
+    prisma.product.findUnique({ where: { id }, select: { slug: true } }),
+  ]);
+  if (orderCount > 0 || subCount > 0) {
     await prisma.product.update({ where: { id }, data: { active: false } });
     revalidatePath("/admin/products");
+    revalidateStorefront(product?.slug);
     return { ok: true, softDeleted: true };
   }
-  await prisma.product.delete({ where: { id } });
+  try {
+    await prisma.product.delete({ where: { id } });
+  } catch {
+    // FK from somewhere unexpected — fall back to hiding it.
+    await prisma.product.update({ where: { id }, data: { active: false } });
+    revalidatePath("/admin/products");
+    revalidateStorefront(product?.slug);
+    return { ok: true, softDeleted: true };
+  }
   revalidatePath("/admin/products");
-  revalidatePath("/shop");
+  revalidateStorefront(product?.slug);
   return { ok: true };
 }
 
@@ -209,8 +219,7 @@ export async function saveCategory(_prev: unknown, formData: FormData) {
     });
   }
   revalidatePath("/admin/categories");
-  revalidatePath("/");
-  revalidatePath("/shop");
+  revalidateStorefront();
   return { ok: true };
 }
 
@@ -221,6 +230,7 @@ export async function deleteCategory(id: string) {
     return { error: `Move or delete the ${count} tea(s) in this category first.` };
   await prisma.category.delete({ where: { id } });
   revalidatePath("/admin/categories");
+  revalidateStorefront();
   return { ok: true };
 }
 
@@ -263,6 +273,20 @@ export async function updateOrderStatus(
             data: { stock: { increment: item.quantity } },
           });
         }
+        // Give back the discount use so a maxUses code isn't burned by a cancel.
+        if (order.discountId) {
+          await tx.discount.updateMany({
+            where: { id: order.discountId, usedCount: { gt: 0 } },
+            data: { usedCount: { decrement: 1 } },
+          });
+        }
+      }
+      if (leavingCancelled && order.discountId) {
+        // Re-consume the discount use when an order is reopened.
+        await tx.discount.updateMany({
+          where: { id: order.discountId },
+          data: { usedCount: { increment: 1 } },
+        });
       }
       if (leavingCancelled) {
         for (const item of order.items) {

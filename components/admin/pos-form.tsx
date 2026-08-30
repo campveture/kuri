@@ -11,7 +11,8 @@ type Product = {
   id: string;
   name: string;
   price: number;
-  image: string;
+  image: string | null;
+  accent?: string;
   variants: Variant[];
 };
 type Loc = { id: string; name: string; kind: "ONLINE" | "STORE" };
@@ -157,8 +158,12 @@ export function PosForm({
                   onClick={() => addLine(p)}
                   className="flex w-full items-center gap-3 px-3 py-2 text-left text-sm hover:bg-cream-2"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={p.image} alt="" className="h-8 w-8 border border-line object-cover" />
+                  {p.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={p.image} alt="" className="h-8 w-8 border border-line object-cover" />
+                  ) : (
+                    <span className="h-8 w-8 shrink-0 rounded-sm border border-line" style={{ background: p.accent ?? "#c89a3e" }} />
+                  )}
                   <span className="flex-1">{p.name}</span>
                   <span className="text-muted-2">{formatBDT(p.price)}</span>
                 </button>

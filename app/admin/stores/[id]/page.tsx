@@ -2,12 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { LocationForm } from "@/components/admin/location-form";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Edit store" };
 
 export default async function EditStorePage(props: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdmin();
   const { id } = await props.params;
   const loc = await prisma.location.findUnique({ where: { id } });
   if (!loc || loc.kind === "ONLINE") notFound();

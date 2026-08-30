@@ -305,9 +305,27 @@ export function parseBlocks(json: string | null | undefined): Block[] {
     const e = entry as Record<string, unknown>;
     const type = e.type as BlockType;
     if (!KNOWN.has(type)) continue;
-    const base = defaultBlock(type);
-    const merged = { ...base, ...e, id: typeof e.id === "string" ? e.id : base.id, type };
-    out.push(merged as Block);
+    const base = defaultBlock(type) as Record<string, unknown>;
+    // Coerce every prop to the type its default has, so a corrupt stored block
+    // (e.g. images:"x", limit:"8") can't crash the renderer.
+    const merged: Record<string, unknown> = { ...base };
+    for (const [k, def] of Object.entries(base)) {
+      const v = e[k];
+      if (v === undefined) continue;
+      if (Array.isArray(def)) {
+        merged[k] = Array.isArray(v) ? v.filter((x) => typeof x === "string") : def;
+      } else if (typeof def === "number") {
+        const n = Number(v);
+        merged[k] = Number.isFinite(n) ? n : def;
+      } else if (typeof def === "string") {
+        merged[k] = typeof v === "string" ? v : def;
+      } else {
+        merged[k] = v;
+      }
+    }
+    merged.id = typeof e.id === "string" ? e.id : base.id;
+    merged.type = type;
+    out.push(merged as unknown as Block);
   }
   return out;
 }

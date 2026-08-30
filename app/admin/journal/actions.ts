@@ -40,7 +40,7 @@ export async function savePost(input: PostInput) {
   const existing = input.id
     ? await prisma.post.findUnique({
         where: { id: input.id },
-        select: { publishedAt: true },
+        select: { publishedAt: true, slug: true },
       })
     : null;
 
@@ -87,6 +87,7 @@ export async function savePost(input: PostInput) {
 
   revalidatePath("/journal");
   revalidatePath("/journal/" + slug);
+  if (existing?.slug && existing.slug !== slug) revalidatePath("/journal/" + existing.slug);
   revalidatePath("/admin/journal");
   return { ok: true, id };
 }

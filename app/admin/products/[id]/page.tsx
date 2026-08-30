@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { parseImages } from "@/lib/utils";
 import { ProductForm } from "@/components/admin/product-form";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Edit tea" };
 
@@ -11,6 +12,7 @@ export default async function EditProductPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdmin();
   const { id } = await params;
   const [product, categories] = await Promise.all([
     prisma.product.findUnique({

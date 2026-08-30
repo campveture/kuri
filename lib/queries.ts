@@ -193,7 +193,9 @@ export async function getProductBySlug(slug: string) {
 
 /** The storefront home page record, if an admin has given it a block layout. */
 export async function getHomePage() {
-  const p = await prisma.page.findFirst({ where: { isHome: true } });
+  const p = await prisma.page.findFirst({
+    where: { isHome: true, status: "PUBLISHED" },
+  });
   if (!p) return null;
   const blocks = parseBlocks(p.blocks);
   return blocks.length ? { ...p, parsedBlocks: blocks } : null;

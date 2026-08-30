@@ -2,10 +2,12 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getInventoryMatrix } from "@/lib/erp";
 import { InventoryMatrix } from "@/components/admin/inventory-matrix";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Inventory" };
 
 export default async function InventoryPage() {
+  await requireAdmin();
   const [{ stores, products }, online] = await Promise.all([
     getInventoryMatrix(),
     prisma.location.findFirst({ where: { kind: "ONLINE" } }),

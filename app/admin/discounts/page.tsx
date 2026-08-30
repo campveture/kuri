@@ -2,10 +2,12 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatBDT, formatDate } from "@/lib/utils";
 import { DiscountRowActions } from "@/components/admin/discount-row-actions";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Discounts" };
 
 export default async function AdminDiscountsPage() {
+  await requireAdmin();
   const discounts = await prisma.discount.findMany({
     orderBy: { createdAt: "desc" },
   });

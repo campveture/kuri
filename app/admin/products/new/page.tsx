@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ProductForm } from "@/components/admin/product-form";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "New tea" };
 
 export default async function NewProductPage() {
+  await requireAdmin();
   const categories = await prisma.category.findMany({
     orderBy: { position: "asc" },
     select: { id: true, name: true },

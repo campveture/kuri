@@ -279,9 +279,11 @@ a:not(.btn):hover {
   to { transform: scale(1) translate(0, 0); }
 }
 
+/* Two identical .marquee-track copies sit side by side; each shifts a full
+   width so the second lands exactly where the first began — seamless loop. */
 @keyframes kb-marquee {
   from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  to { transform: translateX(-100%); }
 }
 
 @keyframes kb-float {
@@ -328,6 +330,13 @@ a:not(.btn):hover {
 .reveal.reveal-in {
   opacity: 1;
   transform: translateY(0);
+}
+/* JS disabled → the IntersectionObserver never runs; show everything. */
+@media (scripting: none) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* Marquee band */
@@ -480,6 +489,11 @@ a:not(.btn):hover {
   .grain::after,
   .float-slow {
     animation: none !important;
+  }
+  /* the fade-up animation is what reveals these — restore their end state */
+  .hero-line > span {
+    opacity: 1 !important;
+    transform: none !important;
   }
   .hero-sticky-bg {
     animation: none !important;

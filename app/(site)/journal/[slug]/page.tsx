@@ -51,9 +51,11 @@ export default async function JournalPostPage(props: PageProps<"/journal/[slug]"
 
       <div className="wrap pb-28">
         <div className="mx-auto flex max-w-[720px] flex-col gap-6 text-[16px] leading-relaxed text-charcoal-2">
-          {post.bodyList.map((paragraph, i) => (
-            <p key={i}>{paragraph}</p>
-          ))}
+          {(post.bodyList.length > 0 ? post.bodyList : [post.excerpt]).map(
+            (paragraph, i) => (
+              <p key={i}>{paragraph}</p>
+            ),
+          )}
         </div>
         <div className="mx-auto mt-16 max-w-[720px] border-t border-line pt-8">
           <Link href="/journal" className="text-sm font-semibold underline">

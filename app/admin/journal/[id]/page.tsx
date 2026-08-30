@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { parseImages } from "@/lib/utils";
 import { PostForm } from "@/components/admin/post-form";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Edit journal entry" };
 
@@ -11,6 +12,7 @@ export default async function EditPostPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdmin();
   const { id } = await params;
   const post = await prisma.post.findUnique({ where: { id } });
   if (!post) notFound();

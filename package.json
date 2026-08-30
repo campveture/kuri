@@ -16,7 +16,7 @@
     "db:studio": "prisma studio"
   },
   "engines": {
-    "node": ">=20.10.0"
+    "node": "22.x"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

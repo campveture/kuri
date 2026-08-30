@@ -1,9 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { CategoryManager } from "@/components/admin/category-manager";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Categories" };
 
 export default async function AdminCategoriesPage() {
+  await requireAdmin();
   const categories = await prisma.category.findMany({
     orderBy: { position: "asc" },
     include: { _count: { select: { products: true } } },

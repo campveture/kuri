@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCollections } from "@/lib/queries";
 import { PageBuilder } from "@/components/admin/page-builder";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Edit page" };
 
@@ -11,6 +12,7 @@ export default async function EditAdminPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdmin();
   const { id } = await params;
   const [page, collections] = await Promise.all([
     prisma.page.findUnique({ where: { id } }),

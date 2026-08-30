@@ -6,12 +6,14 @@ import {
   isPageKey,
 } from "@/lib/content";
 import { ContentForm } from "@/components/admin/content-form";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Edit page content" };
 
 export default async function EditPageContentPage(
   props: PageProps<"/admin/content/[page]">,
 ) {
+  await requireAdmin();
   const { page } = await props.params;
   if (!isPageKey(page)) notFound();
 

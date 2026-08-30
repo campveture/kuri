@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { PostForm } from "@/components/admin/post-form";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "New journal entry" };
 
-export default function NewPostPage() {
+export default async function NewPostPage() {
+  await requireAdmin();
   return (
     <div className="space-y-6">
       <Link

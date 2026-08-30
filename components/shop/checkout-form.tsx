@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/components/CartContext";
@@ -35,9 +35,14 @@ export function CheckoutForm({ settings, prefill }: { settings: Settings; prefil
   const [method, setMethod] = useState<Method>("COD");
   const [trx, setTrx] = useState({ transactionId: "", senderNumber: "" });
   const [code, setCode] = useState("");
-  const [discount, setDiscount] = useState<{ amount: number; label: string } | null>(null);
+  // `at` = the subtotal the code was validated against; if the cart changes the
+  // discount is stale and ignored until re-applied (pure derivation, no effect).
+  const [discount, setDiscount] = useState<{ amount: number; label: string; at: number } | null>(null);
   const [codeMsg, setCodeMsg] = useState<string | null>(null);
+  const [codePending, setCodePending] = useState(false);
   const [state, setState] = useState<CheckoutState>({});
+  const [acceptedTotal, setAcceptedTotal] = useState<number | null>(null);
+  const submitting = useRef(false);
 
   const set = (k: keyof typeof f, v: string) => setF((p) => ({ ...p, [k]: v }));
 
@@ -48,49 +53,71 @@ export function CheckoutForm({ settings, prefill }: { settings: Settings; prefil
       : settings.shippingOutsideDhaka;
   }, [totalPrice, f.city, settings]);
 
-  const discountAmount = discount?.amount ?? 0;
+  const discountStale = discount != null && discount.at !== totalPrice;
+  const activeDiscount = discountStale ? null : discount;
+  const discountAmount = activeDiscount?.amount ?? 0;
   const total = Math.max(0, totalPrice - discountAmount) + shipping;
+  const expected = acceptedTotal != null && !discountStale ? acceptedTotal : total;
 
-  async function checkCode() {
-    if (!code.trim()) return;
-    const r = await applyDiscount(code, totalPrice);
-    if (r.ok) {
-      setDiscount({ amount: r.amount, label: r.label });
-      setCodeMsg(`${r.label} applied`);
-    } else {
+  async function checkCode(): Promise<boolean> {
+    if (!code.trim()) return true;
+    setCodePending(true);
+    try {
+      const r = await applyDiscount(code, totalPrice);
+      if (r.ok) {
+        setDiscount({ amount: r.amount, label: r.label, at: totalPrice });
+        setCodeMsg(`${r.label} applied`);
+        return true;
+      }
       setDiscount(null);
       setCodeMsg(r.error);
+      return false;
+    } finally {
+      setCodePending(false);
     }
   }
 
   function submit() {
+    if (submitting.current) return;
     setState({});
     start(async () => {
-      const res = await placeOrder({
-        customerName: f.customerName,
-        phone: f.phone,
-        email: f.email,
-        addressLine: f.addressLine,
-        area: f.area,
-        city: f.city,
-        note: f.note,
-        paymentMethod: method,
-        transactionId: trx.transactionId,
-        senderNumber: trx.senderNumber,
-        discountCode: discount ? code : "",
-        items: lines.map((l) => ({
-          productId: l.productId,
-          size: l.size,
-          quantity: l.quantity,
-          purchaseOption: l.purchaseOption,
-          frequencyWeeks: l.frequencyWeeks,
-        })),
-      });
-      if (res.ok && res.orderNumber) {
-        clear();
-        router.push(`/order/${res.orderNumber}`);
-      } else {
-        setState(res);
+      submitting.current = true;
+      try {
+        // A code typed but never applied (or gone stale) — validate it now.
+        if (code.trim() && !activeDiscount) {
+          const okCode = await checkCode();
+          if (!okCode) return;
+        }
+        const res = await placeOrder({
+          customerName: f.customerName,
+          phone: f.phone,
+          email: f.email,
+          addressLine: f.addressLine,
+          area: f.area,
+          city: f.city,
+          note: f.note,
+          paymentMethod: method,
+          transactionId: trx.transactionId,
+          senderNumber: trx.senderNumber,
+          discountCode: code.trim(),
+          expectedTotal: expected,
+          items: lines.map((l) => ({
+            productId: l.productId,
+            size: l.size,
+            quantity: l.quantity,
+            purchaseOption: l.purchaseOption,
+            frequencyWeeks: l.frequencyWeeks,
+          })),
+        });
+        if (res.ok && res.orderNumber) {
+          clear();
+          router.push(`/order/${res.orderNumber}`);
+        } else {
+          setState(res);
+          if (res.priceChanged) setAcceptedTotal(res.priceChanged.total);
+        }
+      } finally {
+        submitting.current = false;
       }
     });
   }
@@ -177,14 +204,34 @@ export function CheckoutForm({ settings, prefill }: { settings: Settings; prefil
         </ul>
 
         <div className="flex gap-2">
-          <input className="input py-2 text-sm" placeholder="Discount code" value={code} onChange={(e) => setCode(e.target.value)} />
-          <button type="button" className="btn btn-outline btn-sm" onClick={checkCode}>Apply</button>
+          <label htmlFor="co-code" className="sr-only">Discount code</label>
+          <input
+            id="co-code"
+            className="input py-2 text-sm"
+            placeholder="Discount code"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+          />
+          <button
+            type="button"
+            className="btn btn-outline btn-sm"
+            onClick={() => checkCode()}
+            disabled={codePending || !code.trim()}
+          >
+            {codePending ? "…" : "Apply"}
+          </button>
         </div>
-        {codeMsg && <p className="text-xs text-muted-2">{codeMsg}</p>}
+        {codeMsg && (
+          <p className="text-xs text-muted-2">
+            {discountStale ? "Cart changed — tap Apply again." : codeMsg}
+          </p>
+        )}
 
         <dl className="space-y-1.5">
           <Row k="Subtotal" v={formatBDT(totalPrice)} />
-          {discount && <Row k={`Discount (${discount.label})`} v={`−${formatBDT(discountAmount)}`} accent />}
+          {activeDiscount && (
+            <Row k={`Discount (${activeDiscount.label})`} v={`−${formatBDT(discountAmount)}`} accent />
+          )}
           <Row k="Shipping" v={shipping === 0 ? "Free" : formatBDT(shipping)} />
           <div className="flex justify-between border-t border-line pt-2 text-base font-semibold">
             <dt>Total</dt>
@@ -193,10 +240,17 @@ export function CheckoutForm({ settings, prefill }: { settings: Settings; prefil
         </dl>
 
         {state.error && (
-          <p className="border border-[#b03636]/40 bg-[#b03636]/10 px-3 py-2 text-xs text-negative">{state.error}</p>
+          <p className="border border-[#b03636]/40 bg-[#b03636]/10 px-3 py-2 text-xs text-negative" role="alert">
+            {state.error}
+            {state.priceChanged && (
+              <span className="mt-1 block font-semibold">
+                Updated total: {formatBDT(state.priceChanged.total)}. Tap Place order again to confirm.
+              </span>
+            )}
+          </p>
         )}
 
-        <button type="submit" className="btn btn-primary w-full" disabled={pending || !ready}>
+        <button type="submit" className="btn btn-primary w-full" disabled={pending || !ready || lines.length === 0}>
           {pending ? "Placing order…" : "Place order"}
         </button>
         <p className="text-center text-[11px] text-muted-2">

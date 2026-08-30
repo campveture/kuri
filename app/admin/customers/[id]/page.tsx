@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatBDT, formatDate } from "@/lib/utils";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { RoleToggle } from "@/components/admin/role-toggle";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Customer" };
 
@@ -12,6 +13,7 @@ export default async function CustomerDetail({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdmin();
   const { id } = await params;
   const user = await prisma.user.findUnique({
     where: { id },

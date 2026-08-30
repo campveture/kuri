@@ -24,10 +24,14 @@ const PAYMENT_LABEL: Record<string, string> = {
 export function OrderDetail({
   order,
   showBanner = false,
+  headingLevel = "h1",
 }: {
   order: OrderView;
   showBanner?: boolean;
+  /** Use "h2" when the page already has its own <h1> (e.g. /track). */
+  headingLevel?: "h1" | "h2";
 }) {
+  const Heading = headingLevel;
   const cancelled = order.status === "CANCELLED";
   const currentStep = ORDER_STATUS_FLOW.indexOf(
     order.status as (typeof ORDER_STATUS_FLOW)[number],
@@ -58,7 +62,7 @@ export function OrderDetail({
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
         <div>
-          <h1 className="h-display text-3xl">Order {order.orderNumber}</h1>
+          <Heading className="h-display text-3xl">Order {order.orderNumber}</Heading>
           <p className="mt-1 text-xs uppercase tracking-[0.12em] text-muted-2">
             Placed {formatDateTime(order.createdAt)}
           </p>

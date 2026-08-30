@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getErpReport } from "@/lib/erp";
 import { formatBDT } from "@/lib/utils";
 import { StoreRowActions } from "@/components/admin/store-row-actions";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Stores & stock" };
 
@@ -14,6 +15,7 @@ const TOOLS = [
 ];
 
 export default async function StoresHub() {
+  await requireAdmin();
   const to = new Date();
   const from = new Date(to.getTime() - 29 * 86400000);
   const [locations, report] = await Promise.all([
@@ -89,6 +91,9 @@ export default async function StoresHub() {
               </tr>
             </thead>
             <tbody>
+              {locations.length === 0 && (
+                <tr><td colSpan={5} className="p-4 text-muted-2">No stores yet.</td></tr>
+              )}
               {locations.map((l) => (
                 <tr key={l.id} className="border-t border-line">
                   <td className="p-3">

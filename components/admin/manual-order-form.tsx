@@ -124,8 +124,8 @@ export function ManualOrderForm({ products }: { products: PickProduct[] }) {
                 return (
                   <div key={i} className="flex items-center gap-2 text-sm">
                     <div className="h-9 w-9 shrink-0 overflow-hidden rounded border border-line bg-cream-2">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       {p.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element -- admin thumbnail, remote URL
                         <img
                           src={p.image}
                           alt=""
@@ -192,8 +192,8 @@ export function ManualOrderForm({ products }: { products: PickProduct[] }) {
                   className="flex w-full items-center gap-2 border-b border-line px-2 py-1.5 text-left text-sm hover:bg-cream-2"
                 >
                   <div className="h-7 w-7 shrink-0 overflow-hidden rounded border border-line bg-cream-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     {p.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element -- admin thumbnail, remote URL
                       <img
                         src={p.image}
                         alt=""

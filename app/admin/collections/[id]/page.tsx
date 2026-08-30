@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { parseImages } from "@/lib/utils";
 import { CollectionForm } from "@/components/admin/collection-form";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Edit collection" };
 
@@ -11,6 +12,7 @@ export default async function EditCollectionPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdmin();
   const { id } = await params;
   const [collection, products] = await Promise.all([
     prisma.collection.findUnique({

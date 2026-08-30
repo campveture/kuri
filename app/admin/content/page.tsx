@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { PAGE_KEYS, PAGE_LABELS, PAGE_PATHS } from "@/lib/content";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Page content" };
 
-export default function AdminContentPage() {
+export default async function AdminContentPage() {
+  await requireAdmin();
   return (
     <div className="space-y-6">
       <h1 className="h-display text-3xl">Page content</h1>

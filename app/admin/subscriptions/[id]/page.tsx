@@ -5,6 +5,7 @@ import { formatBDT, formatDate, formatDateTime } from "@/lib/utils";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { SubscriptionRowActions } from "@/components/admin/subscription-row-actions";
 import { SubscriptionEditForm } from "@/components/admin/subscription-edit-form";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Subscription" };
 
@@ -13,6 +14,7 @@ export default async function AdminSubscriptionDetail({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdmin();
   const { id } = await params;
   const sub = await prisma.subscription.findUnique({
     where: { id },

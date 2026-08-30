@@ -31,7 +31,11 @@ export function CollectionRowActions({
         disabled={pending}
         onClick={() =>
           start(async () => {
-            await toggleCollection(id, !active);
+            const res = await toggleCollection(id, !active);
+            if ("error" in res && res.error) {
+              toast(String(res.error), "error");
+              return;
+            }
             toast(active ? "Hidden" : "Visible", "success");
             router.refresh();
           })
@@ -45,7 +49,11 @@ export function CollectionRowActions({
         onClick={() => {
           if (!confirm("Delete this collection? (teas are not deleted)")) return;
           start(async () => {
-            await deleteCollection(id);
+            const res = await deleteCollection(id);
+            if ("error" in res && res.error) {
+              toast(String(res.error), "error");
+              return;
+            }
             toast("Collection deleted", "success");
             router.refresh();
           });

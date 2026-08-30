@@ -1,23 +1,40 @@
 import Link from "next/link";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { SubscriptionRowActions } from "@/components/admin/subscription-row-actions";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Subscriptions" };
 
-export default async function AdminSubscriptionsPage() {
+export default async function AdminSubscriptionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  await requireAdmin();
   const now = new Date();
+  const sp = await searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const PAGE_SIZE = 50;
 
-  const subs = await prisma.subscription.findMany({
-    where: { status: { not: "CANCELLED" } },
-    orderBy: [{ nextShipAt: "asc" }],
-    include: { product: { select: { name: true } } },
-  });
+  const where: Prisma.SubscriptionWhereInput = { status: { not: "CANCELLED" } };
 
-  const dueCount = subs.filter(
-    (s) => s.status === "ACTIVE" && s.nextShipAt.getTime() <= now.getTime(),
-  ).length;
+  const [subs, total, dueCount] = await Promise.all([
+    prisma.subscription.findMany({
+      where,
+      orderBy: [{ nextShipAt: "asc" }],
+      include: { product: { select: { name: true } } },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.subscription.count({ where }),
+    prisma.subscription.count({
+      where: { status: "ACTIVE", nextShipAt: { lte: now } },
+    }),
+  ]);
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <div className="space-y-6">
@@ -92,6 +109,32 @@ export default async function AdminSubscriptionsPage() {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <nav className="flex items-center justify-between text-xs text-muted-2">
+          <span>
+            Page {page} of {totalPages}
+          </span>
+          <span className="flex gap-2">
+            {page > 1 && (
+              <Link
+                href={`/admin/subscriptions?page=${page - 1}`}
+                className="btn btn-outline btn-sm"
+              >
+                Prev
+              </Link>
+            )}
+            {page < totalPages && (
+              <Link
+                href={`/admin/subscriptions?page=${page + 1}`}
+                className="btn btn-outline btn-sm"
+              >
+                Next
+              </Link>
+            )}
+          </span>
+        </nav>
+      )}
     </div>
   );
 }

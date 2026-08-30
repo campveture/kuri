@@ -33,10 +33,16 @@ export function ImageUploader({
       for (const file of Array.from(files).slice(0, room)) {
         const fd = new FormData();
         fd.append("file", file);
-        const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-        const data = await res.json();
-        if (!res.ok) {
-          toast(data.error ?? "Upload failed", "error");
+        let data: { url?: string; error?: string } = {};
+        try {
+          const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+          data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.url) {
+            toast(data.error ?? `Upload failed (${res.status})`, "error");
+            continue;
+          }
+        } catch {
+          toast("Upload failed — check your connection.", "error");
           continue;
         }
         onChange([...value, data.url]);

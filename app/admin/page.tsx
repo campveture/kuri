@@ -1,19 +1,23 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 import { formatBDT, formatDate } from "@/lib/utils";
 import { StatusBadge } from "@/components/admin/status-badge";
 
 export default async function AdminDashboard() {
+  await requireAdmin();
+  // eslint-disable-next-line react-hooks/purity -- RSC render is request-scoped, not memoised
+  const now = Date.now();
   const [
     orders,
     pendingCount,
     awaitingPayment,
     allTimeAgg,
     monthAgg,
-    productCount,
     lowStock,
     customerCount,
     dueSubs,
+    unreadMessages,
     recent,
   ] = await Promise.all([
     prisma.order.count(),
@@ -27,10 +31,9 @@ export default async function AdminDashboard() {
       _sum: { total: true },
       where: {
         status: { not: "CANCELLED" },
-        createdAt: { gte: new Date(Date.now() - 30 * 86400000) },
+        createdAt: { gte: new Date(now - 30 * 86400000) },
       },
     }),
-    prisma.product.count(),
     prisma.productVariant.findMany({
       where: { stock: { lte: 3 } },
       include: { product: { select: { name: true, id: true } } },
@@ -39,8 +42,9 @@ export default async function AdminDashboard() {
     }),
     prisma.user.count({ where: { role: "CUSTOMER" } }),
     prisma.subscription.count({
-      where: { status: "ACTIVE", nextShipAt: { lte: new Date() } },
+      where: { status: "ACTIVE", nextShipAt: { lte: new Date(now) } },
     }),
+    prisma.contactMessage.count({ where: { handled: false } }),
     prisma.order.findMany({
       orderBy: { createdAt: "desc" },
       take: 8,
@@ -58,7 +62,7 @@ export default async function AdminDashboard() {
     { label: "Pending orders", value: pendingCount, href: "/admin/orders?status=PENDING" },
     { label: "Payments to verify", value: awaitingPayment, href: "/admin/orders?payment=PENDING_VERIFICATION" },
     { label: "Subscriptions due", value: dueSubs, href: "/admin/subscriptions" },
-    { label: "Teas live", value: productCount, href: "/admin/products" },
+    { label: "Unread messages", value: unreadMessages, href: "/admin/messages" },
   ];
 
   return (

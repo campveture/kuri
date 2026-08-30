@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { DiscountForm } from "@/components/admin/discount-form";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Edit discount" };
 
@@ -12,6 +13,7 @@ export default async function EditDiscountPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdmin();
   const { id } = await params;
   const d = await prisma.discount.findUnique({ where: { id } });
   if (!d) notFound();

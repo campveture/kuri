@@ -1,16 +1,32 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatBDT, formatDate } from "@/lib/utils";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Customers" };
 
-export default async function AdminCustomersPage() {
-  const users = await prisma.user.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      orders: { select: { total: true, status: true } },
-    },
-  });
+export default async function AdminCustomersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  await requireAdmin();
+  const sp = await searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const PAGE_SIZE = 50;
+
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        orders: { select: { total: true, status: true } },
+      },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.user.count(),
+  ]);
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <div className="space-y-6">
@@ -78,6 +94,32 @@ export default async function AdminCustomersPage() {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <nav className="flex items-center justify-between text-xs text-muted-2">
+          <span>
+            Page {page} of {totalPages}
+          </span>
+          <span className="flex gap-2">
+            {page > 1 && (
+              <Link
+                href={`/admin/customers?page=${page - 1}`}
+                className="btn btn-outline btn-sm"
+              >
+                Prev
+              </Link>
+            )}
+            {page < totalPages && (
+              <Link
+                href={`/admin/customers?page=${page + 1}`}
+                className="btn btn-outline btn-sm"
+              >
+                Next
+              </Link>
+            )}
+          </span>
+        </nav>
+      )}
     </div>
   );
 }

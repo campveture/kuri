@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatBDT, parseImages } from "@/lib/utils";
 import { ProductRowActions } from "@/components/admin/product-row-actions";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Teas" };
 
@@ -10,6 +11,7 @@ export default async function AdminProductsPage({
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
+  await requireAdmin();
   const { q } = await searchParams;
   const products = await prisma.product.findMany({
     where: q

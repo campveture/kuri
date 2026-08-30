@@ -2,10 +2,12 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { parseImages } from "@/lib/utils";
 import { PosForm } from "@/components/admin/pos-form";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Record a sale" };
 
 export default async function SellPage() {
+  await requireAdmin();
   const [locations, products, levels] = await Promise.all([
     prisma.location.findMany({
       where: { active: true },
@@ -28,7 +30,8 @@ export default async function SellPage() {
     id: p.id,
     name: p.name,
     price: p.price,
-    image: parseImages(p.images)[0] ?? "/products/placeholder.svg",
+    image: parseImages(p.images)[0] ?? null,
+    accent: p.accent,
     variants: p.variants.map((v) => {
       const stockByLoc: Record<string, number> = {};
       for (const l of locations) {

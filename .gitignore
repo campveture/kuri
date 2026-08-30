@@ -50,5 +50,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.vercel
-.env*
+# (vercel/env rules are defined above; keep .env.example tracked)
+!.env.example

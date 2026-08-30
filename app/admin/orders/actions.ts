@@ -5,36 +5,24 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { getSettings, calcShipping } from "@/lib/settings";
 import { generateOrderNumber, parseImages } from "@/lib/utils";
+import { manualOrderSchema } from "@/lib/validators";
 
-type ManualLine = { productId: string; size: string; quantity: number };
-
-type ManualOrderInput = {
-  customerName: string;
-  phone: string;
-  email?: string;
-  addressLine: string;
-  area: string;
-  city: string;
-  note?: string;
-  paymentMethod: "COD" | "BKASH" | "NAGAD";
-  paymentStatus: "UNPAID" | "PENDING_VERIFICATION" | "PAID";
-  status: "PENDING" | "CONFIRMED" | "PACKED" | "SHIPPED" | "DELIVERED";
-  shippingOverride?: number | null;
-  items: ManualLine[];
-};
+type ManualOrderInput = Record<string, unknown>;
 
 export async function createManualOrder(
-  input: ManualOrderInput,
+  raw: ManualOrderInput,
 ): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   const admin = await requireAdmin();
 
-  if (!input.customerName?.trim() || (input.phone ?? "").trim().length < 6) {
-    return { ok: false, error: "Enter a customer name and phone." };
+  const parsed = manualOrderSchema.safeParse(raw);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Check the order fields.",
+    };
   }
-  const lines = (input.items ?? []).filter(
-    (i) => i.productId && i.size && i.quantity > 0,
-  );
-  if (lines.length === 0) return { ok: false, error: "Add at least one item." };
+  const input = parsed.data;
+  const lines = input.items;
 
   const settings = await getSettings();
   const products = await prisma.product.findMany({
@@ -161,5 +149,7 @@ export async function createManualOrder(
 
   revalidatePath("/admin/orders");
   revalidatePath("/admin");
+  revalidatePath("/");
+  revalidatePath("/shop");
   return { ok: true, id: orderId };
 }

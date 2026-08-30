@@ -32,6 +32,9 @@ export async function saveCollection(input: CollectionInput) {
     select: { id: true },
   });
   const slug = clash ? `${base}-${randomToken(4)}` : base;
+  const prevSlug = input.id
+    ? (await prisma.collection.findUnique({ where: { id: input.id }, select: { slug: true } }))?.slug
+    : null;
 
   const base_ = {
     name: d.name,
@@ -60,6 +63,8 @@ export async function saveCollection(input: CollectionInput) {
   revalidatePath("/admin/collections");
   revalidatePath("/", "layout");
   revalidatePath("/shop");
+  revalidatePath("/collections/" + slug);
+  if (prevSlug && prevSlug !== slug) revalidatePath("/collections/" + prevSlug);
   return { ok: true };
 }
 
@@ -68,6 +73,7 @@ export async function toggleCollection(id: string, active: boolean) {
   await prisma.collection.update({ where: { id }, data: { active } });
   revalidatePath("/admin/collections");
   revalidatePath("/", "layout");
+  revalidatePath("/collections", "layout");
   return { ok: true };
 }
 
@@ -76,5 +82,6 @@ export async function deleteCollection(id: string) {
   await prisma.collection.delete({ where: { id } });
   revalidatePath("/admin/collections");
   revalidatePath("/", "layout");
+  revalidatePath("/collections", "layout");
   return { ok: true };
 }

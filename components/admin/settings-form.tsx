@@ -18,7 +18,7 @@ export function SettingsForm({
   collections: { name: string; slug: string }[];
 }) {
   const router = useRouter();
-  const [state, action] = useActionState<State, FormData>(saveSettings, null);
+  const [state, action, isPending] = useActionState<State, FormData>(saveSettings, null);
   const [heroImages, setHeroImages] = useState<string[]>(settings.heroImages);
 
   useEffect(() => {
@@ -34,16 +34,18 @@ export function SettingsForm({
         <legend className="label px-2">Mobile payment numbers</legend>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="label">bKash number</label>
+            <label className="label" htmlFor="set-bkash-number">bKash number</label>
             <input
+              id="set-bkash-number"
               name="bkash_number"
               defaultValue={settings.bkashNumber}
               className="input"
             />
           </div>
           <div>
-            <label className="label">bKash account type</label>
+            <label className="label" htmlFor="set-bkash-type">bKash account type</label>
             <input
+              id="set-bkash-type"
               name="bkash_type"
               defaultValue={settings.bkashType}
               className="input"
@@ -51,16 +53,18 @@ export function SettingsForm({
             />
           </div>
           <div>
-            <label className="label">Nagad number</label>
+            <label className="label" htmlFor="set-nagad-number">Nagad number</label>
             <input
+              id="set-nagad-number"
               name="nagad_number"
               defaultValue={settings.nagadNumber}
               className="input"
             />
           </div>
           <div>
-            <label className="label">Nagad account type</label>
+            <label className="label" htmlFor="set-nagad-type">Nagad account type</label>
             <input
+              id="set-nagad-type"
               name="nagad_type"
               defaultValue={settings.nagadType}
               className="input"
@@ -73,8 +77,9 @@ export function SettingsForm({
         <legend className="label px-2">Shipping (৳)</legend>
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
-            <label className="label">Inside Dhaka</label>
+            <label className="label" htmlFor="set-shipping-inside-dhaka">Inside Dhaka</label>
             <input
+              id="set-shipping-inside-dhaka"
               name="shipping_inside_dhaka"
               type="number"
               defaultValue={settings.shippingInsideDhaka}
@@ -82,8 +87,9 @@ export function SettingsForm({
             />
           </div>
           <div>
-            <label className="label">Outside Dhaka</label>
+            <label className="label" htmlFor="set-shipping-outside-dhaka">Outside Dhaka</label>
             <input
+              id="set-shipping-outside-dhaka"
               name="shipping_outside_dhaka"
               type="number"
               defaultValue={settings.shippingOutsideDhaka}
@@ -91,8 +97,9 @@ export function SettingsForm({
             />
           </div>
           <div>
-            <label className="label">Free shipping over</label>
+            <label className="label" htmlFor="set-free-shipping-threshold">Free shipping over</label>
             <input
+              id="set-free-shipping-threshold"
               name="free_shipping_threshold"
               type="number"
               defaultValue={settings.freeShippingThreshold}
@@ -106,6 +113,7 @@ export function SettingsForm({
         <legend className="label px-2">Announcement bar</legend>
         <textarea
           name="announcement"
+          aria-label="Announcement bar text"
           defaultValue={settings.announcement}
           className="textarea min-h-20"
           placeholder="Shown scrolling at the top of every page. Leave blank to hide."
@@ -116,8 +124,9 @@ export function SettingsForm({
         <legend className="label px-2">Storefront — homepage</legend>
 
         <div>
-          <label className="label">Hero headline</label>
+          <label className="label" htmlFor="set-hero-headline">Hero headline</label>
           <textarea
+            id="set-hero-headline"
             name="hero_headline"
             defaultValue={settings.heroHeadline}
             className="textarea min-h-16"
@@ -129,8 +138,9 @@ export function SettingsForm({
         </div>
 
         <div>
-          <label className="label">Hero subtext</label>
+          <label className="label" htmlFor="set-hero-subtext">Hero subtext</label>
           <textarea
+            id="set-hero-subtext"
             name="hero_subtext"
             defaultValue={settings.heroSubtext}
             className="textarea min-h-20"
@@ -154,16 +164,18 @@ export function SettingsForm({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="label">Primary button label</label>
+            <label className="label" htmlFor="set-hero-cta-label">Primary button label</label>
             <input
+              id="set-hero-cta-label"
               name="hero_cta_label"
               defaultValue={settings.heroCtaLabel}
               className="input"
             />
           </div>
           <div>
-            <label className="label">Primary button link</label>
+            <label className="label" htmlFor="set-hero-cta-href">Primary button link</label>
             <input
+              id="set-hero-cta-href"
               name="hero_cta_href"
               defaultValue={settings.heroCtaHref}
               className="input"
@@ -171,8 +183,9 @@ export function SettingsForm({
             />
           </div>
           <div>
-            <label className="label">Secondary button label</label>
+            <label className="label" htmlFor="set-hero-secondary-label">Secondary button label</label>
             <input
+              id="set-hero-secondary-label"
               name="hero_secondary_label"
               defaultValue={settings.heroSecondaryLabel}
               className="input"
@@ -180,8 +193,9 @@ export function SettingsForm({
             />
           </div>
           <div>
-            <label className="label">Secondary button link</label>
+            <label className="label" htmlFor="set-hero-secondary-href">Secondary button link</label>
             <input
+              id="set-hero-secondary-href"
               name="hero_secondary_href"
               defaultValue={settings.heroSecondaryHref}
               className="input"
@@ -191,8 +205,9 @@ export function SettingsForm({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="label">Featured collection on homepage</label>
+            <label className="label" htmlFor="set-featured-collection">Featured collection on homepage</label>
             <select
+              id="set-featured-collection"
               name="featured_collection"
               defaultValue={settings.featuredCollection}
               className="select"
@@ -217,8 +232,9 @@ export function SettingsForm({
         </div>
 
         <div>
-          <label className="label">Footer blurb</label>
+          <label className="label" htmlFor="set-footer-blurb">Footer blurb</label>
           <textarea
+            id="set-footer-blurb"
             name="footer_blurb"
             defaultValue={settings.footerBlurb}
             className="textarea min-h-16"
@@ -227,7 +243,9 @@ export function SettingsForm({
         </div>
       </fieldset>
 
-      <button className="btn btn-primary">Save settings</button>
+      <button className="btn btn-primary" disabled={isPending}>
+        {isPending ? "Saving…" : "Save settings"}
+      </button>
     </form>
   );
 }

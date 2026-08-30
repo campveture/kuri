@@ -5,6 +5,7 @@ import { formatBDT, formatDateTime } from "@/lib/utils";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { OrderControls } from "@/components/admin/order-controls";
 import { FulfillmentControls } from "@/components/admin/fulfillment-controls";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Order" };
 
@@ -13,6 +14,7 @@ export default async function AdminOrderDetail({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdmin();
   const { id } = await params;
   const order = await prisma.order.findUnique({
     where: { id },
@@ -64,8 +66,8 @@ export default async function AdminOrderDetail({
                     <td className="p-3">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 shrink-0 overflow-hidden rounded border border-line bg-cream-2">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           {it.image ? (
+                            // eslint-disable-next-line @next/next/no-img-element -- admin thumbnail, remote URL
                             <img
                               src={it.image}
                               alt=""

@@ -15,6 +15,10 @@ export function Reveal({ children, delay = 0, className = "" }: RevealProps) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    if (!("IntersectionObserver" in window)) {
+      el.classList.add("reveal-in");
+      return;
+    }
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -22,10 +26,16 @@ export function Reveal({ children, delay = 0, className = "" }: RevealProps) {
           io.disconnect();
         }
       },
-      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" },
     );
     io.observe(el);
-    return () => io.disconnect();
+    // Safety net: if the observer never fires (already-visible edge cases,
+    // background tab, upstream error) reveal the content anyway.
+    const t = setTimeout(() => el.classList.add("reveal-in"), 1500);
+    return () => {
+      io.disconnect();
+      clearTimeout(t);
+    };
   }, []);
 
   return (

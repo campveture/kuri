@@ -2,10 +2,12 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { parseImages } from "@/lib/utils";
 import { ManualOrderForm } from "@/components/admin/manual-order-form";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "New order" };
 
 export default async function NewOrderPage() {
+  await requireAdmin();
   const products = await prisma.product.findMany({
     where: { active: true },
     orderBy: { name: "asc" },

@@ -115,49 +115,66 @@ export async function adjustStock(input: {
   await requireAdmin();
   const [loc, variant] = await Promise.all([
     prisma.location.findUnique({ where: { id: input.locationId } }),
-    prisma.productVariant.findUnique({ where: { id: input.variantId } }),
+    prisma.productVariant.findUnique({
+      where: { id: input.variantId },
+      include: { product: { select: { slug: true } } },
+    }),
   ]);
   if (!loc || !variant) return { ok: false, error: "Store or variant not found." };
-  const v = Math.round(input.value);
-  if (!Number.isFinite(v)) return { ok: false, error: "Enter a number." };
+  const v = Math.trunc(Number(input.value));
+  if (!Number.isFinite(v) || Math.abs(v) > 1_000_000)
+    return { ok: false, error: "Enter a whole number." };
 
-  if (loc.kind === "ONLINE") {
-    const next =
-      input.mode === "set" ? Math.max(0, v) : Math.max(0, variant.stock + v);
-    await prisma.productVariant.update({
-      where: { id: input.variantId },
-      data: { stock: next },
-    });
-  } else {
-    const current = await prisma.inventoryLevel.findUnique({
-      where: {
-        locationId_variantId: {
+  const key = { locationId_variantId: { locationId: input.locationId, variantId: input.variantId } };
+
+  await prisma.$transaction(async (tx) => {
+    if (loc.kind === "ONLINE") {
+      if (input.mode === "delta") {
+        // conditional increment; clamp negatives to 0 in a follow-up
+        await tx.productVariant.update({
+          where: { id: input.variantId },
+          data: { stock: { increment: v } },
+        });
+        await tx.productVariant.updateMany({
+          where: { id: input.variantId, stock: { lt: 0 } },
+          data: { stock: 0 },
+        });
+      } else {
+        await tx.productVariant.update({
+          where: { id: input.variantId },
+          data: { stock: Math.max(0, v) },
+        });
+      }
+    } else if (input.mode === "delta") {
+      const cur = await tx.inventoryLevel.findUnique({ where: key });
+      await tx.inventoryLevel.upsert({
+        where: key,
+        update: { quantity: Math.max(0, (cur?.quantity ?? 0) + v) },
+        create: {
           locationId: input.locationId,
           variantId: input.variantId,
+          quantity: Math.max(0, v),
         },
-      },
-    });
-    const next =
-      input.mode === "set"
-        ? Math.max(0, v)
-        : Math.max(0, (current?.quantity ?? 0) + v);
-    await prisma.inventoryLevel.upsert({
-      where: {
-        locationId_variantId: {
+      });
+    } else {
+      await tx.inventoryLevel.upsert({
+        where: key,
+        update: { quantity: Math.max(0, v) },
+        create: {
           locationId: input.locationId,
           variantId: input.variantId,
+          quantity: Math.max(0, v),
         },
-      },
-      update: { quantity: next },
-      create: {
-        locationId: input.locationId,
-        variantId: input.variantId,
-        quantity: next,
-      },
-    });
-  }
+      });
+    }
+  });
+
   revalidatePath("/admin/stores/inventory");
-  revalidatePath("/shop");
+  if (loc.kind === "ONLINE") {
+    revalidatePath("/");
+    revalidatePath("/shop");
+    if (variant.product?.slug) revalidatePath(`/shop/${variant.product.slug}`);
+  }
   return { ok: true };
 }
 
@@ -168,8 +185,9 @@ export async function transferStock(input: {
   quantity: number;
 }): Promise<Result> {
   await requireAdmin();
-  const qty = Math.round(input.quantity);
-  if (!(qty > 0)) return { ok: false, error: "Enter a quantity above 0." };
+  const qty = Math.trunc(Number(input.quantity));
+  if (!(qty > 0) || qty > 1_000_000)
+    return { ok: false, error: "Enter a whole quantity above 0." };
   if (input.fromLocationId === input.toLocationId)
     return { ok: false, error: "Pick two different stores." };
 
@@ -219,7 +237,10 @@ export async function transferStock(input: {
     return { ok: false, error: e instanceof Error ? e.message : "Transfer failed." };
   }
   revalidatePath("/admin/stores/inventory");
-  revalidatePath("/shop");
+  if (from.kind === "ONLINE" || to.kind === "ONLINE") {
+    revalidatePath("/");
+    revalidatePath("/shop");
+  }
   return { ok: true };
 }
 
@@ -239,8 +260,13 @@ export async function recordStoreSale(input: {
   const loc = await prisma.location.findUnique({ where: { id: input.locationId } });
   if (!loc || !loc.active) return { ok: false, error: "Pick an active store." };
 
-  const lines = input.items.filter((i) => i.variantId && i.quantity > 0);
+  const lines = input.items
+    .filter((i) => i.variantId && Number.isFinite(i.quantity))
+    .map((i) => ({ variantId: i.variantId, quantity: Math.trunc(Number(i.quantity)) }))
+    .filter((i) => i.quantity > 0 && i.quantity <= 100000);
   if (lines.length === 0) return { ok: false, error: "Add at least one item." };
+  if (!["CASH", "BKASH", "NAGAD", "CARD"].includes(input.paymentMethod))
+    return { ok: false, error: "Invalid payment method." };
 
   const variants = await prisma.productVariant.findMany({
     where: { id: { in: Array.from(new Set(lines.map((l) => l.variantId))) } },
@@ -354,7 +380,10 @@ export async function recordStoreSale(input: {
   revalidatePath("/admin/stores/inventory");
   revalidatePath("/admin/stores/reports");
   revalidatePath("/admin");
-  if (isOnline) revalidatePath("/shop");
+  if (isOnline) {
+    revalidatePath("/");
+    revalidatePath("/shop");
+  }
   return { ok: true, id: saleId };
 }
 

@@ -63,7 +63,11 @@ export function FulfillmentControls({
         disabled={pending}
         onClick={() =>
           start(async () => {
-            await setFulfillment(orderId, c, t);
+            const res = await setFulfillment(orderId, c, t);
+            if ("error" in res && res.error) {
+              toast(String(res.error), "error");
+              return;
+            }
             toast("Shipment saved", "success");
             router.refresh();
           })

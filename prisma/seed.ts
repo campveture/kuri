@@ -143,6 +143,9 @@ async function main() {
   await prisma.category.deleteMany();
   await prisma.post.deleteMany();
   await prisma.page.deleteMany();
+  await prisma.pageContent.deleteMany();
+  await prisma.subscriber.deleteMany();
+  await prisma.contactMessage.deleteMany();
   await prisma.setting.deleteMany();
   await prisma.loginAttempt.deleteMany();
   await prisma.address.deleteMany();
@@ -241,9 +244,29 @@ async function main() {
     data: { name: "Online Store", slug: "online", kind: "ONLINE", position: 0 },
   });
 
+  // demo data for local development only (SEED_SAMPLE_DATA=false skips this)
+  if (WITH_SAMPLE_DATA) {
+    await prisma.discount.create({
+      data: { code: "WELCOME10", type: "PERCENT", value: 10, minSubtotal: 500 },
+    });
+    const featured = await prisma.product.findMany({
+      where: { featured: true },
+      select: { id: true },
+    });
+    await prisma.collection.create({
+      data: {
+        name: "This Season",
+        slug: "this-season",
+        description: "Our pick of the current flush.",
+        position: 0,
+        products: { connect: featured },
+      },
+    });
+  }
+
   console.log(
-    `Seeded: 1 admin (${ADMIN_EMAIL}), ${CATEGORIES.length} categories, ${TEAS.length} teas, ${POSTS.length} journal posts.` +
-      (WITH_SAMPLE_DATA ? "" : " (sample orders skipped)"),
+    `Seeded: 1 admin (${ADMIN_EMAIL}), ${CATEGORIES.length} categories, ${TEAS.length} teas, ${POSTS.length} journal posts` +
+      (WITH_SAMPLE_DATA ? " + demo discount & collection." : " (production mode — no demo data)."),
   );
 }
 

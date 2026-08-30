@@ -36,7 +36,7 @@ export default async function TrackPage({
 
       {order && (
         <div className="mt-10">
-          <OrderDetail order={order} />
+          <OrderDetail order={order} headingLevel="h2" />
         </div>
       )}
     </div>

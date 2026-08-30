@@ -48,12 +48,15 @@ export const checkoutSchema = z.object({
   transactionId: z.string().max(40).optional().or(z.literal("")),
   senderNumber: z.string().max(20).optional().or(z.literal("")),
   discountCode: z.string().max(24).optional().or(z.literal("")),
+  /** What the checkout UI showed the customer — the server rejects the order if
+   *  its own computed total differs (price changed since add-to-cart). */
+  expectedTotal: z.coerce.number().int().min(0).optional(),
   items: z
     .array(
       z.object({
         productId: z.string(),
         size: z.string(),
-        quantity: z.number().int().min(1).max(20),
+        quantity: z.coerce.number().int().min(1).max(20),
         purchaseOption: z.enum(["one-time", "subscribe"]).default("one-time"),
         frequencyWeeks: z.coerce.number().int().min(1).max(52).optional(),
       }),
@@ -147,4 +150,62 @@ export const subscriptionSchema = z.object({
   frequencyWeeks: z.coerce.number().int().min(1).max(52),
   nextShipAt: z.string().min(1, "Pick a date"),
   variantId: z.string().optional().or(z.literal("")),
+});
+
+export const newsletterSchema = z.object({
+  email: z.string().trim().toLowerCase().email("Enter a valid email").max(160),
+  source: z.string().max(24).optional(),
+});
+
+export const contactSchema = z.object({
+  name: z.string().trim().min(2, "Enter your name").max(80),
+  email: z.string().trim().toLowerCase().email("Enter a valid email").max(160),
+  topic: z.string().max(40).optional(),
+  message: z.string().trim().min(5, "Write a message").max(4000),
+});
+
+/** Admin creating an order by hand. */
+export const manualOrderSchema = z.object({
+  customerName: z.string().trim().min(2).max(80),
+  phone: z.string().trim().min(6).max(20).regex(/^[0-9+\-\s]+$/, "Digits only"),
+  email: z.string().trim().email().optional().or(z.literal("")),
+  addressLine: z.string().trim().min(4).max(240),
+  area: z.string().trim().min(2).max(80),
+  city: z.string().trim().min(2).max(60).default("Dhaka"),
+  note: z.string().max(400).optional().or(z.literal("")),
+  paymentMethod: z.enum(["COD", "BKASH", "NAGAD"]).default("COD"),
+  paymentStatus: z
+    .enum(["UNPAID", "PENDING_VERIFICATION", "PAID", "REFUNDED"])
+    .default("UNPAID"),
+  status: z
+    .enum(["PENDING", "CONFIRMED", "PACKED", "SHIPPED", "DELIVERED"])
+    .default("PENDING"),
+  shippingOverride: z.coerce.number().int().min(0).max(100000).optional(),
+  items: z
+    .array(
+      z.object({
+        productId: z.string().min(1),
+        size: z.string().min(1),
+        quantity: z.coerce.number().int().min(1).max(20),
+      }),
+    )
+    .min(1, "Add at least one line"),
+});
+
+/** Admin POS counter sale. */
+export const storeSaleSchema = z.object({
+  locationId: z.string().min(1),
+  paymentMethod: z.enum(["CASH", "BKASH", "NAGAD", "CARD"]).default("CASH"),
+  discount: z.coerce.number().int().min(0).max(1_000_000).default(0),
+  customerName: z.string().max(80).optional().or(z.literal("")),
+  customerPhone: z.string().max(20).optional().or(z.literal("")),
+  note: z.string().max(400).optional().or(z.literal("")),
+  items: z
+    .array(
+      z.object({
+        variantId: z.string().min(1),
+        quantity: z.coerce.number().int().min(1).max(1000),
+      }),
+    )
+    .min(1, "Add at least one line"),
 });

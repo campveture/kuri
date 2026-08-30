@@ -43,7 +43,18 @@ export function ProductCard({
           ))}
         </div>
         <div className="text-sm font-semibold">
-          {product.inStock ? `From ${formatBDT(product.price)}` : "Sold out"}
+          {!product.inStock ? (
+            "Sold out"
+          ) : (
+            <>
+              {formatBDT(product.price)}
+              {product.compareAtPrice && product.compareAtPrice > product.price && (
+                <span className="ml-1.5 font-normal text-muted-2 line-through">
+                  {formatBDT(product.compareAtPrice)}
+                </span>
+              )}
+            </>
+          )}
         </div>
       </div>
     </Link>

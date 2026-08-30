@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { UserCreateForm } from "@/components/admin/user-create-form";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "New user" };
 
-export default function NewUserPage() {
+export default async function NewUserPage() {
+  await requireAdmin();
   return (
     <div className="space-y-6">
       <div>

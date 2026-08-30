@@ -1,50 +1,112 @@
 # Kuri
 
-Single-origin tea e-commerce site for Kuri Valley Estate, Sreemangal, Bangladesh. Built with Next.js 16 (App Router, Turbopack) and Tailwind CSS v4.
+Full-stack storefront and operations back-office for **Kuri Valley Estate**, a
+single-origin tea brand in Sreemangal, Bangladesh.
+
+- **Live:** https://kurivalley.vercel.app
+- **Admin:** https://kurivalley.vercel.app/admin
+- Next.js 16 (App Router, Turbopack) · React 19 · Tailwind CSS v4 · Prisma 6.5 ·
+  PostgreSQL (Neon) · hand-rolled `jose` + `bcryptjs` auth · deployed on Vercel.
 
 ## Run locally
 
 ```bash
 npm install
+cp .env.example .env          # then fill in the values (see below)
+npm run db:migrate            # apply migrations to your dev database
+npm run db:seed               # seed catalog + admin user
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000). Admin panel at `/admin`.
 
-## Build
+The dev database is a Neon branch (`dev`). `.neon` links it; connection strings
+live in `.env` (`DATABASE_URL` pooled, `DATABASE_URL_UNPOOLED` direct).
 
-```bash
-npm run build
-npm run start   # serve the production build locally
-```
+### Environment variables
+
+| Var | Purpose |
+|---|---|
+| `DATABASE_URL` | Pooled Postgres connection (Neon) |
+| `DATABASE_URL_UNPOOLED` | Direct connection — used by Prisma migrations (`directUrl`) |
+| `AUTH_SECRET` | HS256 signing key for the `kuri_session` JWT. Generate: `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"` |
+| `BLOB_READ_WRITE_TOKEN` | Vercel Blob store `kuri-uploads` — admin image uploads |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Seed-time admin credentials (optional; defaults in `prisma/seed.ts`) |
+| `SEED_SAMPLE_DATA` | `true` seeds demo orders/discount/collection; `false` (prod) seeds catalog + admin only |
+| `NEXT_PUBLIC_SITE_URL` | Canonical site URL for metadata / absolute links |
+
+## Scripts
+
+| Command | Does |
+|---|---|
+| `npm run dev` | Dev server (Turbopack) |
+| `npm run build` | `prisma generate && next build` |
+| `npm run vercel-build` | `prisma generate && prisma migrate deploy && next build` — Vercel's build command |
+| `npm run start` | Serve the production build |
+| `npm run lint` | ESLint |
+| `npm run db:migrate` | `prisma migrate dev` (create + apply a migration) |
+| `npm run db:deploy` | `prisma migrate deploy` (apply pending migrations, no prompts) |
+| `npm run db:reset` | Drop + recreate + reseed the dev DB |
+| `npm run db:seed` | Run `prisma/seed.ts` |
+| `npm run db:studio` | Prisma Studio |
 
 ## Deploy
 
-This is a standard Next.js app, so it deploys cleanly to any Node-capable host:
+Hosted on **Vercel** (project `kuri`, team `campveture-7651`), region `sin1`.
+The `campveture/kuri` GitHub repo is connected — **every push to `main`
+auto-deploys**. Vercel runs `npm run vercel-build`, which applies any pending
+Prisma migrations to the production Neon branch before building.
 
-- **Vercel** (recommended, zero config): run `vercel deploy` from this directory, or connect the repo in the [Vercel dashboard](https://vercel.com/new) and it will detect Next.js automatically.
-- **Netlify / any Node host**: `npm run build` then `npm run start`, or use the platform's Next.js adapter/build preset.
+To ship: merge to `main` and push. Check the deployment in the Vercel dashboard.
+There is no manual deploy step.
 
-No environment variables are required to build or run the site as-is (see "Known gaps" below for what a real launch would need).
+Production env vars (`DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `AUTH_SECRET`,
+`BLOB_READ_WRITE_TOKEN`) are set in the Vercel project settings and point at the
+Neon `production` branch.
 
 ## Project structure
 
-- `app/` — routes (App Router). Each page is mostly self-contained JSX + Tailwind classes.
-- `components/` — shared UI (nav, footer, cart, product card, icons, illustrations).
-- `lib/commerce.ts` — product catalog. Currently local mock data shaped like a simplified Storefront API response, not a real backend.
-- `lib/journal.ts` — journal/blog post content.
-- `lib/photoCredits.ts` — attribution data for `/photo-credits`.
-- `public/images/` — photography (see licensing note below).
+- `app/(site)/` — storefront (home, shop, product, cart/checkout, journal, the
+  bespoke marketing pages, account, order tracking).
+- `app/(auth)/` — login / register.
+- `app/admin/` — the back-office: catalog, collections, discounts, orders &
+  fulfilment, subscriptions, customers, journal, page builder, per-page content
+  editor, physical-store ERP (locations, stock, POS, expenses, P&L), settings,
+  messages (newsletter subscribers + contact form submissions).
+- `app/api/` — `/api/products` (search), `/api/admin/upload` (image upload).
+- `components/` — storefront UI, `components/admin/**`, `components/blocks/**`
+  (page-builder block renderer), `components/account/**`.
+- `lib/` — `prisma`, `session`, `auth`, `queries`, `orders`, `discounts`,
+  `analytics`, `erp`, `settings`, `validators` (Zod), `blocks`, `content`,
+  `page-templates`, `utils`, `site`.
+- `prisma/` — `schema.prisma`, migrations, `seed.ts`.
 
-## Known gaps before this is a real store
+## Customising site content
 
-- **No commerce backend.** `lib/commerce.ts` is mock data with sample BDT prices. There's no Shopify, Stripe, or any payment processor connected — the cart works client-side (localStorage) but Checkout is intentionally disabled with an explanatory note.
-- **No real photography of Kuri Valley Estate yet.** Every photo currently on the site is a genuine, freely-licensed (CC BY / CC BY-SA) photo of Sreemangal's tea gardens generally, sourced from Wikimedia Commons and credited on `/photo-credits` — not photos of Kuri's actual estate, which doesn't have a photoshoot yet. Swap these out once real photography exists.
-- **Bracketed placeholder facts throughout** — `[PRICE]`, `[FOUNDER NAME]`, `[YEAR]`, `[ALTITUDE]`, `[EMAIL]`, etc. These need real answers before launch. Search the codebase for `[` to find them all.
-- **Account and Checkout are non-functional stubs** by design — both need real backends (auth, payments) that don't exist yet.
-- **Footer's "Shipping & Returns" and "FAQ" links are unbuilt** — these are policy/legal content that shouldn't be drafted speculatively.
-- **The Contact form** opens the visitor's email client with a pre-filled message (no backend) rather than actually submitting anywhere.
+Two editing surfaces, both in the admin:
+
+1. **Page builder** (`/admin/pages`) — block-based landing pages at `/<slug>`,
+   and the homepage when a page is marked as home.
+2. **Per-page content** (`/admin/content`) — the hand-designed marketing pages
+   (Our Origin, Our Story, Subscriptions, Contact) keep their layouts; every
+   headline, paragraph and image on them is an editable field. Hardcoded copy is
+   the fallback when a field is blank.
+
+Shop / product / cart / checkout / account / order / track are system pages
+driven by catalog data, not editable as content.
 
 ## Notes on rendering
 
-Hero sections use a lightweight Three.js particle effect (`components/HeroParticles.tsx`) layered over full-bleed photos. Overlay/gradient colors use explicit `rgba(...)` values rather than Tailwind's `color/opacity` shorthand (e.g. `bg-black/50`) — that shorthand compiles to an oklab-based `color-mix()` that was found to render fully opaque in at least one tested environment; plain `rgba()` sidesteps it entirely. Keep using that pattern for any new translucent overlays.
+Hero sections use a lightweight Three.js particle effect
+(`components/HeroParticles.tsx`) over full-bleed photos, and respect
+`prefers-reduced-motion`. Overlay/gradient colours use explicit `rgba(...)`
+values rather than Tailwind's `bg-black/50` shorthand — that shorthand compiles
+to an oklab `color-mix()` that rendered opaque in a tested environment. Keep
+using `rgba()` for new translucent overlays.
+
+## Photography
+
+Photos are freely-licensed (CC BY / CC BY-SA) images of Sreemangal's tea gardens
+from Wikimedia Commons, credited on `/photo-credits` — not the actual estate.
+Replace with real photography when available; upload via the admin and set image
+fields per page/product.

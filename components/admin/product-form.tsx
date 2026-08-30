@@ -147,18 +147,18 @@ export function ProductForm({
     >
       <div className="card grid gap-4 p-5">
         <div>
-          <label className="label">Name</label>
-          <input className="input" value={v.name} onChange={(e) => set("name", e.target.value)} required />
+          <label className="label" htmlFor="prod-name">Name</label>
+          <input id="prod-name" className="input" value={v.name} onChange={(e) => set("name", e.target.value)} required />
           <Err e={errors.name} />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="label">Slug (optional)</label>
-            <input className="input" placeholder="auto from name" value={v.slug} onChange={(e) => set("slug", e.target.value)} />
+            <label className="label" htmlFor="prod-slug">Slug (optional)</label>
+            <input id="prod-slug" className="input" placeholder="auto from name" value={v.slug} onChange={(e) => set("slug", e.target.value)} />
           </div>
           <div>
-            <label className="label">Category</label>
-            <select className="select" value={v.categoryId} onChange={(e) => set("categoryId", e.target.value)}>
+            <label className="label" htmlFor="prod-category">Category</label>
+            <select id="prod-category" className="select" value={v.categoryId} onChange={(e) => set("categoryId", e.target.value)}>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
@@ -167,19 +167,19 @@ export function ProductForm({
           </div>
         </div>
         <div>
-          <label className="label">Description</label>
-          <textarea className="textarea" value={v.description} onChange={(e) => set("description", e.target.value)} required />
+          <label className="label" htmlFor="prod-description">Description</label>
+          <textarea id="prod-description" className="textarea" value={v.description} onChange={(e) => set("description", e.target.value)} required />
           <Err e={errors.description} />
         </div>
         <div className="grid gap-4 sm:grid-cols-4">
-          <Field label="Price (৳)" value={v.price} onChange={(x) => set("price", x)} err={errors.price} required />
-          <Field label="Compare-at (৳)" value={v.compareAtPrice} onChange={(x) => set("compareAtPrice", x)} />
-          <Field label="Cost / unit (৳)" value={v.costPrice} onChange={(x) => set("costPrice", x)} placeholder="0" hint="For profit reports." />
-          <Field label="Subscribe price (৳)" value={v.subscribePrice} onChange={(x) => set("subscribePrice", x)} hint="Blank = no subscription." />
+          <Field id="prod-price" label="Price (৳)" value={v.price} onChange={(x) => set("price", x)} err={errors.price} required />
+          <Field id="prod-compare-at" label="Compare-at (৳)" value={v.compareAtPrice} onChange={(x) => set("compareAtPrice", x)} />
+          <Field id="prod-cost-price" label="Cost / unit (৳)" value={v.costPrice} onChange={(x) => set("costPrice", x)} placeholder="0" hint="For profit reports." />
+          <Field id="prod-subscribe-price" label="Subscribe price (৳)" value={v.subscribePrice} onChange={(x) => set("subscribePrice", x)} hint="Blank = no subscription." />
         </div>
         <div>
-          <label className="label">Tags (comma sep.)</label>
-          <input className="input" value={v.tags} onChange={(e) => set("tags", e.target.value)} />
+          <label className="label" htmlFor="prod-tags">Tags (comma sep.)</label>
+          <input id="prod-tags" className="input" value={v.tags} onChange={(e) => set("tags", e.target.value)} />
         </div>
         <div className="flex flex-wrap gap-6">
           <label className="flex items-center gap-2 text-sm">
@@ -196,35 +196,35 @@ export function ProductForm({
       <div className="card grid gap-4 p-5">
         <p className="label">Tea detail</p>
         <div>
-          <label className="label">Tasting notes (comma sep.)</label>
-          <input className="input" placeholder="Malt, Honey, Stone Fruit" value={v.tastingNotes} onChange={(e) => set("tastingNotes", e.target.value)} />
+          <label className="label" htmlFor="prod-tasting-notes">Tasting notes (comma sep.)</label>
+          <input id="prod-tasting-notes" className="input" placeholder="Malt, Honey, Stone Fruit" value={v.tastingNotes} onChange={(e) => set("tastingNotes", e.target.value)} />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Origin" value={v.origin} onChange={(x) => set("origin", x)} />
-          <Field label="Altitude" value={v.altitude} onChange={(x) => set("altitude", x)} placeholder="900 m" />
-          <Field label="Process" value={v.process} onChange={(x) => set("process", x)} placeholder="Orthodox, fully oxidised" />
-          <Field label="Harvest" value={v.harvest} onChange={(x) => set("harvest", x)} placeholder="Second Flush" />
+          <Field id="prod-origin" label="Origin" value={v.origin} onChange={(x) => set("origin", x)} />
+          <Field id="prod-altitude" label="Altitude" value={v.altitude} onChange={(x) => set("altitude", x)} placeholder="900 m" />
+          <Field id="prod-process" label="Process" value={v.process} onChange={(x) => set("process", x)} placeholder="Orthodox, fully oxidised" />
+          <Field id="prod-harvest" label="Harvest" value={v.harvest} onChange={(x) => set("harvest", x)} placeholder="Second Flush" />
         </div>
         <div className="grid gap-4 sm:grid-cols-4">
-          <Field label="Brew temp" value={v.brewTemp} onChange={(x) => set("brewTemp", x)} placeholder="95°C" />
-          <Field label="Brew dose" value={v.brewDose} onChange={(x) => set("brewDose", x)} placeholder="3g / 200ml" />
-          <Field label="Steep time" value={v.brewSteep} onChange={(x) => set("brewSteep", x)} placeholder="3–4 min" />
-          <Field label="Best with" value={v.brewBestWith} onChange={(x) => set("brewBestWith", x)} placeholder="A splash of milk" />
+          <Field id="prod-brew-temp" label="Brew temp" value={v.brewTemp} onChange={(x) => set("brewTemp", x)} placeholder="95°C" />
+          <Field id="prod-brew-dose" label="Brew dose" value={v.brewDose} onChange={(x) => set("brewDose", x)} placeholder="3g / 200ml" />
+          <Field id="prod-brew-steep" label="Steep time" value={v.brewSteep} onChange={(x) => set("brewSteep", x)} placeholder="3–4 min" />
+          <Field id="prod-brew-best-with" label="Best with" value={v.brewBestWith} onChange={(x) => set("brewBestWith", x)} placeholder="A splash of milk" />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="label">Pouch colour</label>
+            <label className="label" htmlFor="prod-accent">Pouch colour</label>
             <div className="flex items-center gap-2">
-              <input type="color" value={v.accent} onChange={(e) => set("accent", e.target.value)} className="h-9 w-12 rounded border border-line" />
-              <input className="input" value={v.accent} onChange={(e) => set("accent", e.target.value)} />
+              <input type="color" aria-label="Pouch colour picker" value={v.accent} onChange={(e) => set("accent", e.target.value)} className="h-9 w-12 rounded border border-line" />
+              <input id="prod-accent" className="input" value={v.accent} onChange={(e) => set("accent", e.target.value)} />
             </div>
             <Err e={errors.accent} />
           </div>
           <div>
-            <label className="label">Pouch shadow colour</label>
+            <label className="label" htmlFor="prod-accent-dark">Pouch shadow colour</label>
             <div className="flex items-center gap-2">
-              <input type="color" value={v.accentDark} onChange={(e) => set("accentDark", e.target.value)} className="h-9 w-12 rounded border border-line" />
-              <input className="input" value={v.accentDark} onChange={(e) => set("accentDark", e.target.value)} />
+              <input type="color" aria-label="Pouch shadow colour picker" value={v.accentDark} onChange={(e) => set("accentDark", e.target.value)} className="h-9 w-12 rounded border border-line" />
+              <input id="prod-accent-dark" className="input" value={v.accentDark} onChange={(e) => set("accentDark", e.target.value)} />
             </div>
             <Err e={errors.accentDark} />
           </div>
@@ -243,13 +243,14 @@ export function ProductForm({
       </div>
 
       <div className="card p-5">
-        <label className="label">Weights & stock</label>
+        <p className="label">Weights & stock</p>
         <div className="space-y-2">
           {v.variants.map((vr, i) => (
             <div key={i} className="flex gap-2">
               <input
                 className="input w-28 py-2 text-sm"
                 placeholder="Weight"
+                aria-label={`Weight, row ${i + 1}`}
                 value={vr.size}
                 onChange={(e) => {
                   const next = [...v.variants];
@@ -261,6 +262,7 @@ export function ProductForm({
                 className="input w-28 py-2 text-sm"
                 inputMode="numeric"
                 placeholder="Stock"
+                aria-label={`Stock, row ${i + 1}`}
                 value={vr.stock}
                 onChange={(e) => {
                   const next = [...v.variants];
@@ -271,6 +273,7 @@ export function ProductForm({
               <button
                 type="button"
                 className="px-3 text-muted-2 hover:text-negative"
+                aria-label={`Remove weight, row ${i + 1}`}
                 onClick={() => set("variants", v.variants.filter((_, idx) => idx !== i))}
               >
                 ✕
@@ -299,6 +302,7 @@ export function ProductForm({
 }
 
 function Field({
+  id,
   label,
   value,
   onChange,
@@ -307,6 +311,7 @@ function Field({
   placeholder,
   hint,
 }: {
+  id: string;
   label: string;
   value: string;
   onChange: (v: string) => void;
@@ -317,8 +322,9 @@ function Field({
 }) {
   return (
     <div>
-      <label className="label">{label}</label>
+      <label className="label" htmlFor={id}>{label}</label>
       <input
+        id={id}
         className="input"
         value={value}
         placeholder={placeholder}

@@ -1,8 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import { getFeaturedProducts, getNewArrivals, getHomePage, type ProductCard as Card } from "@/lib/queries";
 import { ProductCard } from "@/components/ProductCard";
 import { BlockRenderer } from "@/components/blocks/block-renderer";
+import { NewsletterForm } from "@/components/NewsletterForm";
 import { HeroParticles } from "@/components/HeroParticles";
 import { LeafQuoteIcon, ArrowRightIcon } from "@/components/Icons";
 import { Reveal } from "@/components/Reveal";
@@ -216,16 +216,7 @@ function KuriDefaultHome({ products }: { products: Card[] }) {
               One email, a few times a season. No spam, just fresh tea when it lands.
             </p>
           </div>
-          <form className="flex w-full max-w-[420px] flex-col border border-charcoal sm:flex-row md:min-w-[380px]">
-            <input
-              type="email"
-              placeholder="Your email address"
-              className="flex-1 bg-transparent px-4 py-4 text-sm outline-none"
-            />
-            <button type="submit" className="whitespace-nowrap bg-charcoal px-6 py-4 text-xs font-semibold tracking-wide text-cream uppercase">
-              Subscribe
-            </button>
-          </form>
+          <NewsletterForm source="newsletter" />
         </div>
       </Reveal>
     </div>

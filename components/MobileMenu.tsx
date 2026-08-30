@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { CloseIcon } from "@/components/Icons";
+import { useOverlay } from "@/components/useOverlay";
 
 const links = [
   { href: "/shop", label: "Shop" },
@@ -14,6 +15,7 @@ const links = [
 ];
 
 export function MobileMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  useOverlay(isOpen, onClose);
   return (
     <>
       {/* Backdrop */}
@@ -24,7 +26,10 @@ export function MobileMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () =
       />
 
       {/* Panel */}
-      <div className={`mobile-menu-panel ${isOpen ? "mobile-menu-panel--open" : ""}`}>
+      <div
+        className={`mobile-menu-panel ${isOpen ? "mobile-menu-panel--open" : ""}`}
+        inert={!isOpen}
+      >
         <div className="flex items-center justify-between border-b border-line px-6 py-5">
           <span className="font-serif text-xl font-semibold tracking-[0.14em]">KURI</span>
           <button type="button" onClick={onClose} aria-label="Close menu" className="nav-icon-btn">

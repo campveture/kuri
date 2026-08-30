@@ -2,10 +2,12 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { parseImages } from "@/lib/utils";
 import { CollectionForm } from "@/components/admin/collection-form";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "New collection" };
 
 export default async function NewCollectionPage() {
+  await requireAdmin();
   const products = await prisma.product.findMany({
     orderBy: { name: "asc" },
     include: { category: { select: { name: true } } },

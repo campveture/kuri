@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getErpReport } from "@/lib/erp";
 import { ErpReportView } from "@/components/admin/erp-report-view";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Profit & loss" };
 
@@ -14,6 +15,7 @@ const RANGES = [
 export default async function ReportsPage(props: {
   searchParams: Promise<{ days?: string }>;
 }) {
+  await requireAdmin();
   const { days: daysParam } = await props.searchParams;
   const days = [7, 30, 90, 365].includes(Number(daysParam))
     ? Number(daysParam)

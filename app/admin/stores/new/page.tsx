@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { LocationForm } from "@/components/admin/location-form";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "New store" };
 
-export default function NewStorePage() {
+export default async function NewStorePage() {
+  await requireAdmin();
   return (
     <div className="space-y-6">
       <div>

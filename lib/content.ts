@@ -402,8 +402,11 @@ function deepMerge<T>(base: T, over: unknown): T {
     }
     return out as T;
   }
-  // scalar
-  return over === undefined || over === null ? base : (over as T);
+  // scalar — a blank string falls back to the default too, so clearing a field
+  // in the admin can't make a headline vanish or an <Image src=""> throw.
+  if (over === undefined || over === null) return base;
+  if (typeof base === "string" && base !== "" && over === "") return base;
+  return over as T;
 }
 
 /* ------------------------- read for a page ------------------------- */

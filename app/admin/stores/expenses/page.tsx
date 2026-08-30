@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ExpenseManager } from "@/components/admin/expense-manager";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Expenses" };
 
 export default async function ExpensesPage() {
+  await requireAdmin();
   const [locations, rows] = await Promise.all([
     prisma.location.findMany({
       where: { kind: "STORE" },

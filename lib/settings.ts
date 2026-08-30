@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { SITE, SHIPPING_DEFAULTS } from "@/lib/site";
 
@@ -55,7 +56,8 @@ export const STOREFRONT_DEFAULTS = {
   heroSecondaryHref: "/our-origin",
 };
 
-export async function getSettings(): Promise<StoreSettings> {
+/** Request-deduped: called by the site layout, checkout page and checkout action. */
+export const getSettings = cache(async (): Promise<StoreSettings> => {
   const rows = await prisma.setting.findMany({
     where: { key: { in: SETTING_KEYS as unknown as string[] } },
   });
@@ -102,7 +104,7 @@ export async function getSettings(): Promise<StoreSettings> {
     showNewArrivals: str("show_new_arrivals", "true") !== "false",
     heroImages: parseJsonArray(map.get("hero_images")),
   };
-}
+});
 
 function parseJsonArray(raw: string | undefined): string[] {
   if (!raw) return [];
